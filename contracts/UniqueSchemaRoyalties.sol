@@ -2,8 +2,93 @@
 
 pragma solidity ^0.8.9;
 
+import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNFT.sol";
 
-library UniqueRoyaltyPartHelper {
+library CrossAddressHelper {
+    function numberFromAscII(bytes1 b) private pure returns (uint8 res) {
+        if (b>="0" && b<="9") {
+            return uint8(b) - uint8(bytes1("0"));
+        } else if (b>="A" && b<="F") {
+            return 10 + uint8(b) - uint8(bytes1("A"));
+        } else if (b>="a" && b<="f") {
+            return 10 + uint8(b) - uint8(bytes1("a"));
+        }
+        return uint8(b);
+    }
+
+    function parseSubstratePrivateKey(bytes memory _strBytes) internal pure returns (uint256 value) {
+        uint256 number = 0;
+
+        require(_strBytes.length == 64 || _strBytes.length == 66, 'Address string should be 40 or 42 characters long');
+        uint startFrom = _strBytes.length == 66 ? 2 : 0;
+
+        for(uint i=startFrom; i<_strBytes.length; i++){
+            number = number << 4;
+            number |= numberFromAscII(_strBytes[i]);
+        }
+
+        return number;
+    }
+
+    function parseSubstratePrivateKey(string memory _publicKeyString) internal pure returns (uint256 value) {
+        return parseSubstratePrivateKey(bytes(_publicKeyString));
+    }
+
+    function parseEthereumAddress (string memory _addressString) internal pure returns (address) {
+        return parseEthereumAddress(bytes(_addressString));
+    }
+
+    function parseEthereumAddress (bytes memory _strBytes) internal pure returns (address) {
+        uint160 _address = 0;
+        uint160 b1;
+        uint160 b2;
+
+        require(_strBytes.length == 40 || _strBytes.length == 42, 'Address string should be 40 or 42 characters long');
+        uint startFrom = _strBytes.length == 42 ? 2 : 0;
+
+        for (uint i = startFrom; i < startFrom + 2 * 20; i += 2){
+            _address *= 256;
+
+            b1 = uint160(uint8(_strBytes[i]));
+            b2 = uint160(uint8(_strBytes[i+1]));
+
+            if ((b1 >= 97)&&(b1 <= 102)) b1 -= 87;
+            else if ((b1 >= 48)&&(b1 <= 57)) b1 -= 48;
+
+            if ((b2 >= 97)&&(b2 <= 102)) b2 -= 87;
+            else if ((b2 >= 48)&&(b2 <= 57)) b2 -= 48;
+
+            _address += (b1*16+b2);
+        }
+
+        return address(_address);
+    }
+
+    function fromString(string memory str) pure internal returns (CrossAddress memory) {
+        bytes memory b = bytes(str);
+
+        if (b.length == 40 || b.length == 42) {
+            return CrossAddress({
+                eth: parseEthereumAddress(str),
+                sub: 0
+            });
+        } else if (b.length == 64 || b.length == 66) {
+            return CrossAddress({
+                eth: address(0x0),
+                sub: parseSubstratePrivateKey(str)
+            });
+        }
+
+        revert("Invalid cross address string; expecting 40/42 char Ethereum address or 64/66 char Substrate private key");
+    }
+}
+
+library UniqueRoyaltyHelper {
+    struct UniqueRoyaltyPart {
+        CrossAddress crossAddress;
+        uint16 value;
+    }
+
     struct UniqueRoyalty {
         uint8 version;
         uint8 decimals;
@@ -11,131 +96,29 @@ library UniqueRoyaltyPartHelper {
         UniqueRoyaltyPart[] secondary;
     }
 
-    struct UniqueRoyaltyPart {
-        uint16 value;
-        address eth;
-        uint256 sub;
-    }
-
-    function substring(string memory str, uint startIndex, uint endIndex) internal pure returns (string memory ) {
-        bytes memory strBytes = bytes(str);
-        bytes memory result = new bytes(endIndex-startIndex);
-        for(uint i = startIndex; i < endIndex; i++) {
-            result[i-startIndex] = strBytes[i];
-        }
-        return string(result);
-    }
-
-    function deserialize(string memory str) internal pure returns (UniqueRoyaltyPart memory) {
-        bytes memory b = bytes(str);
-
-        if (b[0] == "e") {
-            return UniqueRoyaltyPart({
-                value: uint16(stringToUint(substring(str, 0, 2))),
-                eth: str2ethereumAddress(substring(str, 2, 42)),
-                sub: 0
-            });
-        }
-
-        return UniqueRoyaltyPart({
-            value: uint16(stringToUint(substring(str, 0, 2))),
-            eth: address(0x0),
-            sub: 0
+    function deserialize(string memory royaltyString) internal pure returns (UniqueRoyalty memory) {
+        UniqueRoyalty memory royalty = UniqueRoyalty({
+            version: 1,
+            decimals: 1,
+            primary: new UniqueRoyaltyPart[](0),
+            secondary: new UniqueRoyaltyPart[](0)
         });
-    }
 
-    function serializeRaw (uint16 value, address eth, uint256 sub) internal pure returns (string memory) {
-        if (eth != address(0x0)) {
-            return string.concat("e-", ethereumAddress2str(eth), "-", uint2str(value));
-        }
-
-        return string.concat("s-", uint2str(sub), "-", uint2str(value));
-    }
-
-    function serialize(UniqueRoyaltyPart memory part) internal pure returns (string memory) {
-        return serializeRaw(part.value, part.eth, part.sub);
-    }
-
-    function ethereumAddress2str(address eth) internal pure returns (string memory) {
-        if (eth == address(0x0)) {
-            return "0000000000000000000000000000000000000000";
-        }
-
-        bytes memory alphabet = "0123456789abcdef";
-
-        bytes memory addressPacked = abi.encodePacked(eth);
-
-        bytes memory strAddress = new bytes(addressPacked.length * 2);
-
-        for (uint i = 0; i < addressPacked.length; i++) {
-            strAddress[i*2] = alphabet[uint(uint8(addressPacked[i] >> 4))];
-            strAddress[1+i*2] = alphabet[uint(uint8(addressPacked[i] & 0x0f))];
-        }
-
-        return string(strAddress);
-    }
-
-    function str2ethereumAddress(string memory _addressString) public pure returns (address) {
-        return address(bytes20(bytes(_addressString)));
-    }
-
-    function uint2str(uint256 _i) internal pure returns (string memory str) {
-        if (_i == 0) {
-            return "0";
-        }
-
-        uint256 j = _i;
-        uint256 length;
-
-        while (j != 0) {
-            length++;
-            j /= 10;
-        }
-
-        bytes memory bytesStr = new bytes(length);
-
-        uint256 k = length;
-
-        j = _i;
-
-        while (j != 0) {
-            bytesStr[--k] = bytes1(uint8(48 + j % 10));
-            j /= 10;
-        }
-
-        str = string(bytesStr);
-    }
-
-    function stringToUint(string memory s) internal pure returns (uint) {
-        bytes memory stringBytes = bytes(s);
-        uint result = 0;
-        for (uint i = 0; i < stringBytes.length; i++) {
-            uint c = uint(uint8(stringBytes[i]));
-            if (c >= 48 && c <= 57) {
-                result = result * 10 + (c - 48);
-            }
-        }
-        return result;
+        return royalty;
     }
 }
 
 
 contract Sample {
-    function serializeEthereum(uint16 value, address ethereumAddress) public pure returns (string memory) {
-        UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory part = UniqueRoyaltyPartHelper.UniqueRoyaltyPart(value, ethereumAddress, 0);
-
-        return UniqueRoyaltyPartHelper.serialize(part);
+    function testDeserialize(string memory str) public pure returns (UniqueRoyaltyHelper.UniqueRoyalty memory) {
+        return UniqueRoyaltyHelper.deserialize(str);
     }
 
-    function serializeSubstrate(uint16 value, uint256 substrateAddress) public pure returns (string memory) {
-        UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory part = UniqueRoyaltyPartHelper.UniqueRoyaltyPart(value, address(0), substrateAddress);
-
-        return UniqueRoyaltyPartHelper.serialize(part);
+    function test(string memory str) public pure returns (uint) {
+        return bytes(str).length;
     }
 
-    function testDeserialize(string memory str) public pure returns (uint16, address, uint256) {
-        UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory part = UniqueRoyaltyPartHelper.deserialize(str);
-
-        return (part.value, part.eth, part.sub);
+    function testCrossAddress(string memory str) public pure returns (CrossAddress memory) {
+        return CrossAddressHelper.fromString(str);
     }
 }
