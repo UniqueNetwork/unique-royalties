@@ -1,54 +1,46 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-const deserializedRoyalty = { // customised royalties for the token
-    royaltyVersion: 1,
-    decimals: 6,
-    primary: {
-        addresses: {
-            '0x0000000000000000000000000000000000000000': 200000, // 0.2%
-            '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY': 6250, // 0.625%
-        },
-    },
-    secondary: {
-        addresses: {
-            '0x0000000000000000000000000000000000000000': 300, // 0.03%
-            '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY': 2500, // 0.25%
-        },
-    },
-};
-
-const version = `v:0001`;
-const decimals = `d:06`;
-const primary = `r1-0125:e-0000000000000000000000000000000000000000-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
-const secondary = `r2-0125:e-0000000000000000000000000000000000000000-0000300;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0002500`;
-
-const serializedRoyalty = [version, decimals, primary, secondary].join('|');
+// const version = `v:0001`;
+// const decimals = `d:06`;
+// const primary = `r1-0125:e-0000000000000000000000000000000000000000-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
+// const secondary = `r2-0125:e-0000000000000000000000000000000000000000-0000300;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0002500`;
+//
+// const serializedRoyalty = [version, decimals, primary, secondary].join('|');
 
 
 describe.only('Royalties', () => {
     async function deployFixture() {
         const [owner] = await ethers.getSigners();
 
-        const UniqueSchemaRoyaltiesHelper = await ethers.getContractFactory('UniqueSchemaRoyaltiesHelper');
-        const uniqueSchemaRoyaltiesHelper = await UniqueSchemaRoyaltiesHelper.deploy(serializedRoyalty);
+        const Sample = await ethers.getContractFactory('Sample');
+        const sample = await Sample.deploy();
 
-        return { uniqueSchemaRoyaltiesHelper, owner };
+        return { sample, owner };
     }
 
-    it('should set and return royalty', async () => {
-        const { uniqueSchemaRoyaltiesHelper } = await loadFixture(deployFixture);
+    it('test serialize', async () => {
+        const { sample, owner } = await loadFixture(deployFixture);
 
-        let royalty = await uniqueSchemaRoyaltiesHelper.retrieve();
+        const value = 777;
+        const ethAddress = owner.address.toLowerCase().substring(2);
 
-        expect(royalty).to.equal(serializedRoyalty);
+        const royaltyEthStr = await sample.serializeEthereum(value, ethAddress);
 
-        await uniqueSchemaRoyaltiesHelper.store([version, decimals].join('|'));
+        expect(royaltyEthStr).equal(`e-${ethAddress}-${value}`);
 
-        royalty = await uniqueSchemaRoyaltiesHelper.retrieve();
+        const royaltySubstrateStr = await sample.serializeSubstrate(value, 111);
 
-        expect(royalty).to.equal('v:0001|d:06');
+        expect(royaltySubstrateStr).equal(`e-${ethAddress}-${value}`);
     });
+
+
+    // it('test deserialize', async () => {
+    //     const { sample, owner } = await loadFixture(deployFixture);
+    //
+    //     let royalty = await sample.testDeserialize(`e-${owner.address.toLowerCase().substring(2)}`);
+    //
+    //     expect(royalty).to.deep.equal([]);
+    // });
 });
