@@ -67,18 +67,22 @@ library CrossAddressHelper {
     function fromString(string memory str) pure internal returns (CrossAddress memory) {
         bytes memory b = bytes(str);
 
+        return fromBytes(b);
+    }
+
+    function fromBytes(bytes memory b) pure internal returns (CrossAddress memory) {
         if (b.length == 40 || b.length == 42) {
             return CrossAddress({
-            eth: parseEthereumAddress(str),
-            sub: 0
+                eth: parseEthereumAddress(b),
+                sub: 0
             });
         } else if (b.length == 64 || b.length == 66) {
             return CrossAddress({
-            eth: address(0x0),
-            sub: parseSubstratePrivateKey(str)
+                eth: address(0x0),
+                sub: parseSubstratePrivateKey(b)
             });
         }
 
-        revert("Invalid cross address string; expecting 40/42 char Ethereum address or 64/66 char Substrate private key");
+        revert("Invalid cross address bytes; expecting 20 char Ethereum address or 32 char Substrate private key");
     }
 }

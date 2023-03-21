@@ -23,78 +23,56 @@ describe.only('Royalties', () => {
     async function deployFixture() {
         const [owner] = await ethers.getSigners();
 
-        const Sample = await ethers.getContractFactory('Sample');
-        const sample = await Sample.deploy();
+        const SampleContract = await ethers.getContractFactory('SampleContract');
+        const sampleContract = await SampleContract.deploy();
 
-        return { sample, owner };
+        return { sampleContract, owner };
     }
 
-    // it('test deserialize', async () => {
-    //     const { sample, owner } = await loadFixture(deployFixture);
-    //
-    //     const royaltyStruct = await sample.testDeserialize(`e-${owner.address.toLowerCase().substring(2)}`);
-    //
-    //     const royalty = fromStructToObject(royaltyStruct as any);
-    //
-    //     expect(royalty).to.deep.equal({
-    //         version: 1,
-    //         decimals: 6,
-    //         primary: [],
-    //         secondary: [],
-    //     });
-    // });
+    describe('BytesHelper test', async () => {
+        it('test', async () => {
+            const { sampleContract, owner } = await loadFixture(deployFixture);
 
-    // it('parse eth address', async () => {
-    //     const { sample, owner } = await loadFixture(deployFixture);
-    //
-    //     const original = owner.address.toLowerCase().substring(2);
-    //     const result = await sample.test(original);
-    //
-    //     expect(result.toLowerCase().substring(2)).to.equal(original);
-    // });
-    //
-    // it('parse substrate public key', async () => {
-    //     const { sample, owner } = await loadFixture(deployFixture);
-    //
-    //     const original = '0x8ea22863f6d84b1f76e4377c1ba1f6c8bd75b0d3bb5d11c36c0436bdd3110867';
-    //     const result = await sample.test2(original);
-    //
-    //     expect(result).to.equal(original);
-    // });
-    //
+            const result = await sampleContract.testBytesHelper('Alice-00039', 5);
+
+            expect(result[0]).to.equal('Alice');
+            expect(result[1]).to.equal(39);
+        });
+    });
+
     describe('CrossAddress from string', async () => {
         it('parse eth address (40)', async () => {
-            const { sample, owner } = await loadFixture(deployFixture);
+            const { sampleContract, owner } = await loadFixture(deployFixture);
 
             const original = owner.address.toLowerCase().substring(2);
-            const result = await sample.testCrossAddress(original);
+            const result = await sampleContract.testCrossAddress(original);
 
             expect(result.eth.toLowerCase()).to.equal('0x' + original);
         });
 
         it('parse eth address (42)', async () => {
-            const { sample, owner } = await loadFixture(deployFixture);
+            const { sampleContract, owner } = await loadFixture(deployFixture);
 
             const original = owner.address.toLowerCase();
-            const result = await sample.testCrossAddress(original);
+            const result = await sampleContract.testCrossAddress(original);
 
             expect(result.eth.toLowerCase()).to.equal(original);
         });
 
         it('parse substrate public key (64)', async () => {
-            const { sample } = await loadFixture(deployFixture);
+            const { sampleContract } = await loadFixture(deployFixture);
 
             const original = '0x8ea22863f6d84b1f76e4377c1ba1f6c8bd75b0d3bb5d11c36c0436bdd3110867';
-            const result = await sample.testCrossAddress(original);
+            const result = await sampleContract.testCrossAddress(original);
 
             expect(result.sub).to.equal(original);
         });
 
         it('parse substrate public key (66)', async () => {
-            const { sample } = await loadFixture(deployFixture);
+            const { sampleContract } = await loadFixture(deployFixture);
 
             const original = '8ea22863f6d84b1f76e4377c1ba1f6c8bd75b0d3bb5d11c36c0436bdd3110867';
-            const result = await sample.testCrossAddress(original);
+            const result = await sampleContract.testCrossAddress(original);
 
             expect(result.sub).to.equal('0x' + original);
         });
