@@ -20,6 +20,8 @@ export function fromStructToObject<T extends object>(struct: [] & T) : T{
 }
 
 describe.only('Royalties', () => {
+    const equalsIgnoreCase = (a: string, b: string) => expect(a.toLowerCase()).to.equal(b.toLowerCase());
+
     async function deployFixture() {
         const [owner] = await ethers.getSigners();
 
@@ -28,6 +30,28 @@ describe.only('Royalties', () => {
 
         return { sampleContract, owner };
     }
+
+    describe('UniqueRoyaltyPartHelper', async () => {
+        it('Ethereum sample', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+
+            const str = `e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0000300`;
+            const result = await sampleContract.testUniqueRoyaltyPartHelper(str);
+
+            equalsIgnoreCase(result?.crossAddress?.eth, '0x' + '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+            expect(result?.value).to.equal(300);
+        });
+
+        it('Substrate sample', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+
+            const str = `s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
+            const result = await sampleContract.testUniqueRoyaltyPartHelper(str);
+
+            expect(result?.crossAddress?.sub, '0x' + 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+            expect(result?.value).to.equal(6250);
+        });
+    });
 
     describe('BytesHelper test', async () => {
         it('test', async () => {

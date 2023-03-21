@@ -19,15 +19,14 @@ contract SampleContract {
         crossAddress = CrossAddressHelper.fromString(str);
     }
 
-//    function test(string memory str) public pure returns (string memory, string memory, string memory) {
-    function test(string memory str) public pure returns (UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory) {
+    function testUniqueRoyaltyPartHelper(string memory str) public pure returns (UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory) {
         return UniqueRoyaltyPartHelper.fromString(str);
     }
 
     function testBytesHelper(string memory str, uint dashIndex) public pure returns (string memory, uint) {
         bytes memory b = bytes(str);
         bytes memory nameBytes = BytesHelper.slice(bytes(b), 0, dashIndex);
-        bytes memory valueBytes = BytesHelper.slice(bytes(b), dashIndex + 1, 5);
+        bytes memory valueBytes = BytesHelper.slice(bytes(b), dashIndex + 1);
 
         return (string (nameBytes), BytesHelper.bytesToUint(valueBytes));
     }

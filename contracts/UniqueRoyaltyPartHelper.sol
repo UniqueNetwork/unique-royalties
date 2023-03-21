@@ -23,16 +23,16 @@ library UniqueRoyaltyPartHelper {
 
     function fromBytes(bytes memory royaltyPartBytes) internal pure returns (UniqueRoyaltyPart memory) {
         if (royaltyPartBytes[0] == "e") {
-            bytes memory addressBytes = BytesHelper.slice(royaltyPartBytes, 2, 40);
-            bytes memory valueBytes = BytesHelper.slice(royaltyPartBytes, 43, 7);
+            bytes memory addressBytes = BytesHelper.slice(royaltyPartBytes, 2, 42);
+            bytes memory valueBytes = BytesHelper.slice(royaltyPartBytes, 43);
 
             return UniqueRoyaltyPart({
                 crossAddress: CrossAddressHelper.fromBytes(addressBytes),
                 value: uint16(BytesHelper.bytesToUint(valueBytes))
             });
         } else if (royaltyPartBytes[0] == "s") {
-            bytes memory addressBytes = BytesHelper.slice(royaltyPartBytes, 2, 64);
-            bytes memory valueBytes = BytesHelper.slice(royaltyPartBytes, 67, 7);
+            bytes memory addressBytes = BytesHelper.slice(royaltyPartBytes, 2, 66);
+            bytes memory valueBytes = BytesHelper.slice(royaltyPartBytes, 67);
 
             return UniqueRoyaltyPart({
                 crossAddress: CrossAddressHelper.fromBytes(addressBytes),

@@ -53,9 +53,11 @@ library CrossAddressHelper {
             b2 = uint160(uint8(_strBytes[i+1]));
 
             if ((b1 >= 97)&&(b1 <= 102)) b1 -= 87;
+            else if ((b1 >= 65)&&(b1 <= 70)) b1 -= 55;
             else if ((b1 >= 48)&&(b1 <= 57)) b1 -= 48;
 
             if ((b2 >= 97)&&(b2 <= 102)) b2 -= 87;
+            else if ((b2 >= 65)&&(b2 <= 70)) b2 -= 55;
             else if ((b2 >= 48)&&(b2 <= 57)) b2 -= 48;
 
             _address += (b1*16+b2);
