@@ -8,8 +8,6 @@ import "./CrossAddressHelper.sol";
 import "./BytesHelper.sol";
 
 library UniqueRoyaltyPartHelper {
-    event Loggg(string message);
-
     struct UniqueRoyaltyPart {
         CrossAddress crossAddress;
         uint16 value;
