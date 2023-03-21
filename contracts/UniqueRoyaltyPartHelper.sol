@@ -7,12 +7,12 @@ import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNF
 import "./CrossAddressHelper.sol";
 import "./BytesHelper.sol";
 
-library UniqueRoyaltyPartHelper {
-    struct UniqueRoyaltyPart {
-        CrossAddress crossAddress;
-        uint16 value;
-    }
+struct UniqueRoyaltyPart {
+    CrossAddress crossAddress;
+    uint16 value;
+}
 
+library UniqueRoyaltyPartHelper {
     function fromString(string memory royaltyPartString) internal pure returns (UniqueRoyaltyPart memory) {
         bytes memory b = bytes(royaltyPartString);
 

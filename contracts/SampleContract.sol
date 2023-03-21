@@ -4,11 +4,10 @@ pragma solidity ^0.8.9;
 
 import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNFT.sol";
 
-import "./CrossAddressHelper.sol";
-
-import "./PersonHelper.sol";
-import "./UniqueRoyaltyPartHelper.sol";
 import "./BytesHelper.sol";
+import "./CrossAddressHelper.sol";
+import "./UniqueRoyaltyPartHelper.sol";
+import "./UniqueRoyaltyHelper.sol";
 
 contract SampleContract {
     CrossAddress crossAddress;
@@ -19,7 +18,11 @@ contract SampleContract {
         crossAddress = CrossAddressHelper.fromString(str);
     }
 
-    function testUniqueRoyaltyPartHelper(string memory str) public pure returns (UniqueRoyaltyPartHelper.UniqueRoyaltyPart memory) {
+    function testUniqueRoyaltyHelper(string memory str) public pure returns (UniqueRoyalty memory) {
+        return UniqueRoyaltyHelper.fromString(str);
+    }
+
+    function testUniqueRoyaltyPartHelper(string memory str) public pure returns (UniqueRoyaltyPart memory) {
         return UniqueRoyaltyPartHelper.fromString(str);
     }
 

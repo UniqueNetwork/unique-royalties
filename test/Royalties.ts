@@ -31,6 +31,26 @@ describe.only('Royalties', () => {
         return { sampleContract, owner };
     }
 
+    describe.only('UniqueRoyaltyHelper', async () => {
+        it('Version and decimal', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+            const str = `v:0001|d:06`;
+            const result = await sampleContract.testUniqueRoyaltyHelper(str);
+
+            expect(result?.version).to.equal(1);
+            expect(result?.decimals).to.equal(6);
+        });
+
+        it('Decimal and version', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+            const str = `d:06|v:0001`;
+            const result = await sampleContract.testUniqueRoyaltyHelper(str);
+
+            expect(result?.version).to.equal(1);
+            expect(result?.decimals).to.equal(6);
+        });
+    });
+
     describe('UniqueRoyaltyPartHelper', async () => {
         it('Ethereum sample', async () => {
             const { sampleContract } = await loadFixture(deployFixture);
