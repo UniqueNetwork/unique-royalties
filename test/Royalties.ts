@@ -19,8 +19,8 @@ export function fromStructToObject<T extends object>(struct: [] & T) : T{
     return struct;
 }
 
-describe.only('Royalties', () => {
-    const equalsIgnoreCase = (a: string, b: string) => expect(a.toLowerCase()).to.equal(b.toLowerCase());
+describe('Royalties', () => {
+    const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
 
     async function deployFixture() {
         const [owner] = await ethers.getSigners();
@@ -31,7 +31,7 @@ describe.only('Royalties', () => {
         return { sampleContract, owner };
     }
 
-    describe.only('UniqueRoyaltyHelper', async () => {
+    describe('UniqueRoyaltyHelper', async () => {
         it('Version and decimal', async () => {
             const { sampleContract } = await loadFixture(deployFixture);
             const str = `v:0001|d:06`;
@@ -49,10 +49,49 @@ describe.only('Royalties', () => {
             expect(result?.version).to.equal(1);
             expect(result?.decimals).to.equal(6);
         });
+
+        it('Version, decimal and single primary', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+            const str = `d:06|v:0001|P-0050:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+            const result = await sampleContract.testUniqueRoyaltyHelper(str);
+
+            expect(result?.version).to.equal(1);
+            expect(result?.decimals).to.equal(6);
+
+            equalsIgnoreCase(result?.primary[0].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+            expect(result?.primary[0].value).to.equal(200000);
+        });
+
+        it('Version, decimal and multiple primary', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+            const str = `d:06|v:0001|P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
+            const result = await sampleContract.testUniqueRoyaltyHelper(str);
+
+            expect(result?.version).to.equal(1);
+            expect(result?.decimals).to.equal(6);
+
+            expect(result?.primary[1]?.crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+            expect(result?.primary[1]?.value).to.equal(6250);
+        });
+
+        // it('Version, decimal, primary and secondary', async () => {
+        //     const { sampleContract } = await loadFixture(deployFixture);
+        //     const str = `d:06|v:0001|`
+        //      + `P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`
+        //      + `S-0125:s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250;e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+        //
+        //     const result = await sampleContract.testUniqueRoyaltyHelper(str);
+        //
+        //     equalsIgnoreCase(result?.primary[0].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+        //     expect(result?.primary[0].value).to.equal(200000);
+        //
+        //     expect(result?.primary[1].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+        //     expect(result?.primary[1].value).to.equal(200000);
+        // });
     });
 
     describe('UniqueRoyaltyPartHelper', async () => {
-        it('Ethereum sample', async () => {
+        it('Ethereum sample - 300', async () => {
             const { sampleContract } = await loadFixture(deployFixture);
 
             const str = `e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0000300`;
@@ -60,6 +99,16 @@ describe.only('Royalties', () => {
 
             equalsIgnoreCase(result?.crossAddress?.eth, '0x' + '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
             expect(result?.value).to.equal(300);
+        });
+
+        it('Ethereum sample - 200000', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+
+            const str = `e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+            const result = await sampleContract.testUniqueRoyaltyPartHelper(str);
+
+            equalsIgnoreCase(result?.crossAddress?.eth, '0x' + '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+            expect(result?.value).to.equal(200000);
         });
 
         it('Substrate sample', async () => {
@@ -74,13 +123,22 @@ describe.only('Royalties', () => {
     });
 
     describe('BytesHelper test', async () => {
-        it('test', async () => {
+        it('Alice-00039', async () => {
             const { sampleContract, owner } = await loadFixture(deployFixture);
 
             const result = await sampleContract.testBytesHelper('Alice-00039', 5);
 
             expect(result[0]).to.equal('Alice');
             expect(result[1]).to.equal(39);
+        });
+
+        it('Alice-9999999', async () => {
+            const { sampleContract, owner } = await loadFixture(deployFixture);
+
+            const result = await sampleContract.testBytesHelper('Alice-9999999', 5);
+
+            expect(result[0]).to.equal('Alice');
+            expect(result[1]).to.equal(9999999);
         });
     });
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.9;
+pragma solidity >=0.8.18;
 
 library BytesHelper {
     function stringToUint(string memory s) internal pure returns (uint) {
@@ -26,6 +26,8 @@ library BytesHelper {
     function slice(bytes memory b, uint start) internal pure returns (bytes memory) {
         return slice(b, start, b.length);
     }
+
+    error InvalidSliceBounds(uint length, uint start, uint end);
 
     function slice(bytes memory b, uint start, uint end) internal pure returns (bytes memory) {
         require(end >= start, "End index must be greater than or equal to start index");

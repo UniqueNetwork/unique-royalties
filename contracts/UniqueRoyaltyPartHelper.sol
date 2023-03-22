@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.9;
+pragma solidity >=0.8.18;
 
 import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNFT.sol";
 
@@ -9,7 +9,7 @@ import "./BytesHelper.sol";
 
 struct UniqueRoyaltyPart {
     CrossAddress crossAddress;
-    uint16 value;
+    uint32 value;
 }
 
 library UniqueRoyaltyPartHelper {
@@ -26,7 +26,7 @@ library UniqueRoyaltyPartHelper {
 
             return UniqueRoyaltyPart({
                 crossAddress: CrossAddressHelper.fromBytes(addressBytes),
-                value: uint16(BytesHelper.bytesToUint(valueBytes))
+                value: uint32(BytesHelper.bytesToUint(valueBytes))
             });
         } else if (royaltyPartBytes[0] == "s") {
             bytes memory addressBytes = BytesHelper.slice(royaltyPartBytes, 2, 66);
@@ -34,7 +34,7 @@ library UniqueRoyaltyPartHelper {
 
             return UniqueRoyaltyPart({
                 crossAddress: CrossAddressHelper.fromBytes(addressBytes),
-                value: uint16(BytesHelper.bytesToUint(valueBytes))
+                value: uint32(BytesHelper.bytesToUint(valueBytes))
             });
         }
 
