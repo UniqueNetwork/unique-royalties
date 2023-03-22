@@ -27,6 +27,8 @@ library UniqueRoyaltyHelper {
 
         uint16 version = 0;
         uint8 decimals = 4;
+        UniqueRoyaltyPart[] memory primary = new UniqueRoyaltyPart[](0);
+        UniqueRoyaltyPart[] memory secondary = new UniqueRoyaltyPart[](0);
 
         while (index <= royaltyBytes.length) {
             if (royaltyBytes[index] == "v") {
@@ -39,16 +41,50 @@ library UniqueRoyaltyHelper {
                 decimals = uint8(BytesHelper.bytesToUint(BytesHelper.slice(royaltyBytes, index + 2, index + 4)));
 
                 index += 5;
+            } else if (royaltyBytes[index] == "P") {
+                uint partsLength = BytesHelper.bytesToUint(BytesHelper.slice(royaltyBytes, index + 2, index + 6));
+
+                bytes memory partsBytes = BytesHelper.slice(royaltyBytes, index + 7, index + 7 + partsLength);
+
+                primary = parseRoyaltyParts(partsBytes);
+
+                index += partsLength + 8;
+            } else if (royaltyBytes[index] == "S") {
+                uint partsLength = BytesHelper.bytesToUint(BytesHelper.slice(royaltyBytes, index + 2, index + 6));
+
+                bytes memory partsBytes = BytesHelper.slice(royaltyBytes, index + 7, index + 7 + partsLength);
+
+                secondary = parseRoyaltyParts(partsBytes);
+
+                index += partsLength + 8;
             } else {
                 revert("Unknown field; expected 'v' (version), 'd' (decimals), 'P' (primary) or 'S' (secondary)");
             }
         }
 
-        return UniqueRoyalty(
-            version,
-            decimals,
-            new UniqueRoyaltyPart[](0),
-            new UniqueRoyaltyPart[](0)
-        );
+        return UniqueRoyalty(version, decimals, primary, secondary);
+    }
+
+    function parseRoyaltyParts(bytes memory royaltyPartsBytes) private pure returns (UniqueRoyaltyPart[] memory parts) {
+        uint bytesIndex = 0;
+        uint partsCount = 0;
+
+        while (bytesIndex < royaltyPartsBytes.length) {
+            uint partLength = royaltyPartsBytes[bytesIndex] == "e" ? 50 : 74;
+            partsCount += 1;
+            bytesIndex += partLength + 1;
+        }
+
+        bytesIndex = 0;
+        parts = new UniqueRoyaltyPart[](partsCount);
+        uint partIndex = 0;
+
+        while (bytesIndex < royaltyPartsBytes.length) {
+            uint partLength = royaltyPartsBytes[bytesIndex] == "e" ? 50 : 74;
+            parts[partIndex] = UniqueRoyaltyPartHelper.fromBytes(BytesHelper.slice(royaltyPartsBytes, bytesIndex, partLength));
+
+            partIndex += 1;
+            bytesIndex += partLength + 1;
+        }
     }
 }
