@@ -39,18 +39,6 @@ library BytesHelper {
         }
         return result;
     }
-
-//    function slice(bytes memory input, uint startIndex, uint length) internal pure returns (bytes memory) {
-//        bytes memory b = new bytes(length);
-//
-//        require(startIndex + length <= input.length, "Slice out of bounds");
-//
-//        for (uint i = 0; i < length; i++) {
-//            b[i] = input[i + startIndex];
-//        }
-//
-//        return b;
-//    }
 }
 
 
