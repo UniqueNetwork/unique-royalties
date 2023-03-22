@@ -2,23 +2,6 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-// const version = `v:0001`;
-// const decimals = `d:06`;
-// const primary = `r1-0125:e-0000000000000000000000000000000000000000-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
-// const secondary = `r2-0125:e-0000000000000000000000000000000000000000-0000300;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0002500`;
-//
-// const serializedRoyalty = [version, decimals, primary, secondary].join('|');
-
-export function fromStructToObject<T extends object>(struct: [] & T) : T{
-    struct = { ...struct };
-    const keysNumber = Object.keys(struct).length;
-    for(let i = 0; i < keysNumber/2; i++){
-        delete struct[i];
-    }
-
-    return struct;
-}
-
 describe('Royalties', () => {
     const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
 
@@ -74,20 +57,28 @@ describe('Royalties', () => {
             expect(result?.primary[1]?.value).to.equal(6250);
         });
 
-        // it('Version, decimal, primary and secondary', async () => {
-        //     const { sampleContract } = await loadFixture(deployFixture);
-        //     const str = `d:06|v:0001|`
-        //      + `P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`
-        //      + `S-0125:s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250;e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
-        //
-        //     const result = await sampleContract.testUniqueRoyaltyHelper(str);
-        //
-        //     equalsIgnoreCase(result?.primary[0].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
-        //     expect(result?.primary[0].value).to.equal(200000);
-        //
-        //     expect(result?.primary[1].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
-        //     expect(result?.primary[1].value).to.equal(200000);
-        // });
+        it('Version, decimal, primary and secondary', async () => {
+            const { sampleContract } = await loadFixture(deployFixture);
+            const str = `d:06|v:0001|`
+             + `P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`
+             + ';'
+             + `S-0125:s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250;e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+
+            const result = await sampleContract.testUniqueRoyaltyHelper(str);
+
+            equalsIgnoreCase(result?.primary[0].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+            expect(result?.primary[0].value).to.equal(200000);
+
+            expect(result?.primary[1].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+            expect(result?.primary[1].value).to.equal(6250);
+
+
+            expect(result?.secondary[0].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+            expect(result?.secondary[0].value).to.equal(6250);
+
+            equalsIgnoreCase(result?.secondary[1].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
+            expect(result?.secondary[1].value).to.equal(200000);
+        });
     });
 
     describe('UniqueRoyaltyPartHelper', async () => {

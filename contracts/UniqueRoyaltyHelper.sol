@@ -48,7 +48,13 @@ library UniqueRoyaltyHelper {
 
                 primary = parseRoyaltyParts(partsBytes);
 
-//                primary =
+                index += partsLength + 8;
+            } else if (royaltyBytes[index] == "S") {
+                uint partsLength = BytesHelper.bytesToUint(BytesHelper.slice(royaltyBytes, index + 2, index + 6));
+
+                bytes memory partsBytes = BytesHelper.slice(royaltyBytes, index + 7, index + 7 + partsLength);
+
+                secondary = parseRoyaltyParts(partsBytes);
 
                 index += partsLength + 8;
             } else {
