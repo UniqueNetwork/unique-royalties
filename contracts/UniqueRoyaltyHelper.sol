@@ -2,8 +2,6 @@
 
 pragma solidity >=0.8.18;
 
-import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNFT.sol";
-
 import "./UniqueRoyaltyPartHelper.sol";
 import "./CrossAddressHelper.sol";
 import "./BytesHelper.sol";

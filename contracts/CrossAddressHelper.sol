@@ -2,7 +2,10 @@
 
 pragma solidity >=0.8.18;
 
-import { CrossAddress } from "@unique-nft/solidity-interfaces/contracts/UniqueNFT.sol";
+struct CrossAddress {
+    address eth;
+    uint256 sub;
+}
 
 library CrossAddressHelper {
     function numberFromAscII(bytes1 b) private pure returns (uint8 res) {

@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "clean": "hardhat clean"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

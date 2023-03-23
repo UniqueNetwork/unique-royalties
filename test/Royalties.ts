@@ -1,6 +1,9 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Ethereum } from '@unique-nft/utils/extension';
+import { uniqueRoyaltyTypes } from "./_util";
+
 
 describe('Royalties', () => {
     const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
@@ -11,7 +14,8 @@ describe('Royalties', () => {
         const SampleContract = await ethers.getContractFactory('SampleContract');
         const sampleContract = await SampleContract.deploy();
 
-        return { sampleContract, owner };
+
+        return { sampleContract, SampleContract, owner };
     }
 
     describe('UniqueRoyaltyHelper', async () => {
@@ -72,12 +76,133 @@ describe('Royalties', () => {
             expect(result?.primary[1].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
             expect(result?.primary[1].value).to.equal(6250);
 
-
             expect(result?.secondary[0].crossAddress?.sub).to.equal('0x'+ 'd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
             expect(result?.secondary[0].value).to.equal(6250);
 
             equalsIgnoreCase(result?.secondary[1].crossAddress?.eth, '0x'+ '1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C');
             expect(result?.secondary[1].value).to.equal(200000);
+        });
+
+        it('Test gas', async () => {
+            const { sampleContract, SampleContract } = await loadFixture(deployFixture);
+            const str = `d:06|v:0001|`
+             + `P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`
+             + ';'
+             + `S-0125:s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250;e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+
+            const tx = await sampleContract.testGas(str);
+
+            const receipt = Ethereum.parseEthersTxReceipt(await tx.wait());
+
+            // console.dir(Object.keys(SampleContract), { depth: 20 });
+            //
+            // return;
+
+            const parsed = SampleContract.interface.events['TestEvent3(bytes)'].format(receipt.events.TestEvent3.royaltyBytes)
+
+
+
+
+            console.dir(parsed, { depth: 20 })
+
+            // console.log(`Gas used: ${receipt.gasUsed.toString()}`);
+        });
+
+        it('Test CrossAddress decoding', async () => {
+            const { sampleContract, SampleContract } = await loadFixture(deployFixture);
+
+            const [crossAddress, encoded] = await sampleContract.getCrossAddressForTest('d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d');
+
+            const decoded = ethers.utils.AbiCoder.prototype.decode([{ name: 'eth', type: 'address' }, {name: 'sub', type : 'uint256'}], encoded);
+            expect(decoded).to.deep.equal(crossAddress);
+        });
+
+        it('Test UniqueRoyaltyPart decoding', async () => {
+            const { sampleContract, SampleContract } = await loadFixture(deployFixture);
+
+            const paramTypes = [
+                {
+                    components: [
+                        {
+                            name: "eth",
+                            type: "address",
+                        },
+                        {
+                            name: "sub",
+                            type: "uint256",
+                        },
+                    ],
+                    name: "crossAddress",
+                    type: "tuple",
+                },
+                {
+                    name: "value",
+                    type: "uint32",
+                },
+            ];
+
+            const str = `e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+
+            const [uniqueRoyaltyPart, encoded] = await sampleContract.getUniqueRoyaltyPartForTest(str);
+
+
+
+            const decoded = ethers.utils.AbiCoder.prototype.decode(paramTypes, encoded);
+            expect(decoded).to.deep.equal(uniqueRoyaltyPart);
+        });
+
+        it('Test UniqueRoyalty decoding', async () => {
+            const { sampleContract, SampleContract } = await loadFixture(deployFixture);
+
+
+
+            const str = `d:06|v:0001|`
+                + `P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
+                // + ';'
+                // + `S-0125:s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250;e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+
+            const [uniqueRoyalty, encoded] = await sampleContract.getUniqueRoyaltyForTest(str);
+
+            const splitted = encoded.substring(2).match(/.{1,64}/g) ?? [];
+
+
+
+            console.dir({ splitted }, { depth: 20 });
+            console.dir({ encoded }, { depth: 20 });
+            // console.dir({ uniqueRoyalty }, { depth: 20 });
+
+            // const decoded = ethers.utils.AbiCoder.prototype.decode(paramTypes, encoded);
+            // expect(decoded).to.deep.equal(uniqueRoyalty);
+
+
+            // console.dir({ decoded }, { depth: 20 });
+        });
+
+        it('Test encoding', async () => {
+            const { sampleContract, SampleContract } = await loadFixture(deployFixture);
+
+            const ethAddressStr = `1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C`;
+            const royaltyPartStr = `e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000`;
+            const royaltyStr = `d:06|v:0001|P-0125:e-1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C-0200000;s-d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d-0006250`;
+
+            const [crossAddress, encodedEthAddress] = await sampleContract.getCrossAddressForTest(ethAddressStr);
+            const [uniqueRoyaltyPart, encodedRoyaltyPart] = await sampleContract.getUniqueRoyaltyPartForTest(royaltyPartStr);
+            const [uniqueRoyalty, encodedRoyalty] = await sampleContract.getUniqueRoyaltyForTest(royaltyStr);
+
+            const splittedEthAddress = encodedEthAddress.substring(2).match(/.{1,64}/g) ?? [];
+            const splittedRoyaltyPart = encodedRoyaltyPart.substring(2).match(/.{1,64}/g) ?? [];
+            const splittedRoyalty = encodedRoyalty.substring(2).match(/.{1,64}/g) ?? [];
+
+            const fixedEncodedRoyalty = '0x' + encodedRoyalty.substring(2 + 64);
+
+            console.dir({ splittedEthAddress }, { depth: 20 });
+            console.dir({ splittedRoyaltyPart }, { depth: 20 });
+            console.dir({ splittedRoyalty }, { depth: 20 });
+
+            const decodedRoyalty = ethers.utils.AbiCoder.prototype.decode(uniqueRoyaltyTypes, fixedEncodedRoyalty);
+
+            console.dir({ decodedRoyalty }, { depth: 20 });
+
         });
     });
 

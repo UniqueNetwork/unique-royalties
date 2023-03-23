@@ -27,8 +27,6 @@ library BytesHelper {
         return slice(b, start, b.length);
     }
 
-    error InvalidSliceBounds(uint length, uint start, uint end);
-
     function slice(bytes memory b, uint start, uint end) internal pure returns (bytes memory) {
         require(end >= start, "End index must be greater than or equal to start index");
         require(end <= b.length, "End index must be less than or equal to the length of the array");
