@@ -41,3 +41,5 @@ export const uniqueRoyaltyTypes = [
         type: "tuple[]",
     },
 ];
+
+export const formatEncoded = (encoded: string): string[] => encoded.substring(2).match(/.{1,64}/g) ?? [];

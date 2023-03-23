@@ -2,8 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Ethereum } from '@unique-nft/utils/extension';
-import { uniqueRoyaltyTypes } from "./_util";
-
+import {formatEncoded, uniqueRoyaltyTypes} from "./_util";
 
 describe('Royalties', () => {
     const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
@@ -163,11 +162,11 @@ describe('Royalties', () => {
 
             const [uniqueRoyalty, encoded] = await sampleContract.getUniqueRoyaltyForTest(str);
 
-            const splitted = encoded.substring(2).match(/.{1,64}/g) ?? [];
+            const formatted = formatEncoded(encoded);
 
 
 
-            console.dir({ splitted }, { depth: 20 });
+            console.dir({ formatted }, { depth: 20 });
             console.dir({ encoded }, { depth: 20 });
             // console.dir({ uniqueRoyalty }, { depth: 20 });
 
@@ -189,15 +188,15 @@ describe('Royalties', () => {
             const [uniqueRoyaltyPart, encodedRoyaltyPart] = await sampleContract.getUniqueRoyaltyPartForTest(royaltyPartStr);
             const [uniqueRoyalty, encodedRoyalty] = await sampleContract.getUniqueRoyaltyForTest(royaltyStr);
 
-            const splittedEthAddress = encodedEthAddress.substring(2).match(/.{1,64}/g) ?? [];
-            const splittedRoyaltyPart = encodedRoyaltyPart.substring(2).match(/.{1,64}/g) ?? [];
-            const splittedRoyalty = encodedRoyalty.substring(2).match(/.{1,64}/g) ?? [];
+            const formattedEthAddress = formatEncoded(encodedEthAddress);
+            const formattedRoyaltyPart = formatEncoded(encodedRoyaltyPart);
+            const formattedRoyalty = formatEncoded(encodedRoyalty);
 
             const fixedEncodedRoyalty = '0x' + encodedRoyalty.substring(2 + 64);
 
-            console.dir({ splittedEthAddress }, { depth: 20 });
-            console.dir({ splittedRoyaltyPart }, { depth: 20 });
-            console.dir({ splittedRoyalty }, { depth: 20 });
+            console.dir({ formattedEthAddress }, { depth: 20 });
+            console.dir({ formattedRoyaltyPart }, { depth: 20 });
+            console.dir({ formattedRoyalty }, { depth: 20 });
 
             const decodedRoyalty = ethers.utils.AbiCoder.prototype.decode(uniqueRoyaltyTypes, fixedEncodedRoyalty);
 

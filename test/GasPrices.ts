@@ -5,7 +5,7 @@ import { Ethereum } from '@unique-nft/utils/extension';
 import { HexString } from '@unique-nft/utils/string';
 import { uniqueRoyaltyTypes } from "./_util";
 
-describe.only('Royalties', () => {
+describe('Royalties', () => {
     const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
 
     async function deployFixture() {
@@ -43,7 +43,7 @@ describe.only('Royalties', () => {
         });
     });
 
-    it.only('Compare UniqueRoyaltyPart', async () => {
+    it('Compare UniqueRoyaltyPart', async () => {
         const { gasPricesContract } = await loadFixture(deployFixture);
 
         const encoded = {
