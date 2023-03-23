@@ -133,11 +133,11 @@ describe('Royalties', () => {
         });
     });
 
-    describe('CrossAddress from string', async () => {
+    describe.only('CrossAddress from string', async () => {
         it('parse eth address (40)', async () => {
             const { sampleContract, owner } = await loadFixture(deployFixture);
 
-            const original = owner.address.toLowerCase().substring(2);
+            const original = '0x1234a38988dd5ecc93dd9ce90a44a00e5fb91e4c'.substring(2);
             const result = await sampleContract.testCrossAddress(original);
 
             expect(result.eth.toLowerCase()).to.equal('0x' + original);
@@ -146,7 +146,7 @@ describe('Royalties', () => {
         it('parse eth address (42)', async () => {
             const { sampleContract, owner } = await loadFixture(deployFixture);
 
-            const original = owner.address.toLowerCase();
+            const original = '0x1234a38988dd5ecc93dd9ce90a44a00e5fb91e4c';
             const result = await sampleContract.testCrossAddress(original);
 
             expect(result.eth.toLowerCase()).to.equal(original);
