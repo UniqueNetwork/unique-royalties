@@ -1,8 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Ethereum } from '@unique-nft/utils/extension';
-import {formatEncoded, uniqueRoyaltyTypes} from "./_util";
 
 describe('Royalties', () => {
     const equalsIgnoreCase = (a?: string, b?: string) => expect(a?.toLowerCase()).to.equal(b?.toLowerCase());
