@@ -133,7 +133,7 @@ describe('Royalties', () => {
         });
     });
 
-    describe.only('CrossAddress from string', async () => {
+    describe('CrossAddress from string', async () => {
         it('parse eth address (40)', async () => {
             const { sampleContract, owner } = await loadFixture(deployFixture);
 

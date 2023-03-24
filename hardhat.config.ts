@@ -3,6 +3,9 @@ import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-gas-reporter";
 
 const config: HardhatUserConfig = {
+  paths: {
+    sources: './contracts-new',
+  },
   solidity: {
     version: "0.8.18",
   },
