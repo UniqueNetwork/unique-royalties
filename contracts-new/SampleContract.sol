@@ -67,10 +67,10 @@ contract SampleContract {
         uint256 encodedMeta = 0;
         uint256 encodedAddress = 0;
 
-        encodedMeta |= uint256(royaltyPart.version) << 4 * 60;
-        encodedMeta |= uint256(royaltyPart.royaltyType == RoyaltyType.PRIMARY ? 0 : 1) << 4 * 59;
-        encodedMeta |= uint256(royaltyPart.crossAddress.eth != address(0x0) ? 0 : 1) << 4 * 58;
-        encodedMeta |= uint256(royaltyPart.decimals) << 4 * 56;
+        encodedMeta |= uint256(royaltyPart.version) << VERSION_OFFSET;
+        encodedMeta |= uint256(royaltyPart.royaltyType == RoyaltyType.PRIMARY ? 0 : 1) << ROYALTY_TYPE_OFFSET;
+        encodedMeta |= uint256(royaltyPart.crossAddress.eth != address(0x0) ? 0 : 1) << ADDRESS_TYPE_OFFSET;
+        encodedMeta |= uint256(royaltyPart.decimals) << DECIMALS_OFFSET;
         encodedMeta |= uint256(royaltyPart.value);
 
         encodedAddress |= uint256(royaltyPart.crossAddress.eth == address(0x0) ? royaltyPart.crossAddress.sub : uint160(royaltyPart.crossAddress.eth));
