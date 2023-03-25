@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { encodeRoyaltyPart, decodeRoyaltyPart } from '../unique-royalties';
-import { ETH_SECONDARY, SUB_PRIMARY } from './samples';
+import { ETH_SECONDARY, SUB_PRIMARY } from './_samples';
 import {
   expectRoyaltyPartStruct,
   getContract,
