@@ -1,135 +1,106 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import {
-  encodeRoyaltyPart,
-  decodeRoyaltyPart,
-  UniqueRoyaltyPart,
-  RoyaltyType,
-} from '../unique-royalties';
+import { encodeRoyaltyPart, decodeRoyaltyPart } from '../unique-royalties';
 import { ETH_SECONDARY, SUB_PRIMARY } from './samples';
-import { Address } from '@unique-nft/utils/address';
 import {
-  UniqueRoyaltyPartStruct,
-  UniqueRoyaltyPartStructOutput,
-} from '../typechain-types/SampleContract';
+  expectRoyaltyPartStruct,
+  getContract,
+  logGasDiff,
+  structFromRoyaltyPart,
+} from './_util';
+import { Ethereum } from '@unique-nft/utils/extension';
 
-const expectRoyaltyPartStruct = (actual: UniqueRoyaltyPartStructOutput) => ({
-  toEqual: (expected: UniqueRoyaltyPart) => {
-    const [version, decimals, value, royaltyType, address] = actual;
-    const [ethAddress, subAddress] = address;
+describe.only('TS implementation', () => {
+  it('encode - sub - primary', async () => {
+    const encoded = encodeRoyaltyPart(SUB_PRIMARY.decoded);
+    expect(encoded).to.equal(SUB_PRIMARY.encoded);
+  });
 
-    expect(actual.version).to.equal(version);
-    expect(actual.decimals).to.equal(decimals);
-    expect(actual.value).to.equal(expected.value);
+  it('encode - eth - secondary', async () => {
+    const encoded = encodeRoyaltyPart(ETH_SECONDARY.decoded);
+    expect(encoded).to.equal(ETH_SECONDARY.encoded);
+  });
 
-    expect(
-      actual.royaltyType ? RoyaltyType.SECONDARY : RoyaltyType.PRIMARY,
-    ).to.equal(expected.royaltyType);
+  it('decode - sub - primary', async () => {
+    const decoded = decodeRoyaltyPart(SUB_PRIMARY.encoded);
+    expect(decoded).to.deep.equal(SUB_PRIMARY.decoded);
+  });
 
-    if (Address.is.ethereumAddress(expected.address)) {
-      expect(subAddress).to.equal(0n);
-      expect(ethAddress.toLowerCase()).to.equal(expected.address.toLowerCase());
-    } else {
-      const expectedSub = Address.substrate.decode(expected.address).bigint;
-
-      expect(subAddress).to.equal(expectedSub);
-      expect(ethAddress).to.equal('0x0000000000000000000000000000000000000000');
-    }
-  },
+  it('decode - eth - secondary', async () => {
+    const decoded = decodeRoyaltyPart(ETH_SECONDARY.encoded);
+    expect(decoded).to.deep.equal(ETH_SECONDARY.decoded);
+  });
 });
 
-const structFromRoyaltyPart = (
-  part: UniqueRoyaltyPart,
-): UniqueRoyaltyPartStruct => ({
-  value: part.value,
-  version: part.version,
-  decimals: part.decimals,
-  royaltyType: part.royaltyType === RoyaltyType.SECONDARY ? 1 : 0,
-  crossAddress: Address.is.ethereumAddress(part.address)
-    ? {
-        eth: part.address,
-        sub: 0,
-      }
-    : {
-        eth: '0x0000000000000000000000000000000000000000',
-        sub: Address.substrate.decode(part.address).bigint,
-      },
-});
+describe.only('Solidity implementation', () => {
+  it('encode - sub - primary', async () => {
+    const { contract } = await getContract();
 
-describe.only('Better royalties', () => {
-  async function deployFixture() {
-    const [owner] = await ethers.getSigners();
-
-    const UniqueRoyaltyTestContract = await ethers.getContractFactory(
-      'SampleContract',
+    const encoded = await contract.encodePart(
+      structFromRoyaltyPart(SUB_PRIMARY.decoded),
     );
-    const contract = await UniqueRoyaltyTestContract.deploy();
 
-    return { contract, owner };
-  }
-
-  describe('TS - encode', () => {
-    it('sub - primary', async () => {
-      const encoded = encodeRoyaltyPart(SUB_PRIMARY.decoded);
-      expect(encoded).to.equal(SUB_PRIMARY.encoded);
-    });
-
-    it('eth - secondary', async () => {
-      const encoded = encodeRoyaltyPart(ETH_SECONDARY.decoded);
-      expect(encoded).to.equal(ETH_SECONDARY.encoded);
-    });
+    expect(encoded).to.equal(SUB_PRIMARY.encoded);
   });
 
-  describe('TS - decode', () => {
-    it('sub - primary', async () => {
-      const decoded = decodeRoyaltyPart(SUB_PRIMARY.encoded);
-      expect(decoded).to.deep.equal(SUB_PRIMARY.decoded);
-    });
+  it('encode - eth - secondary', async () => {
+    const { contract } = await getContract();
 
-    it('eth - secondary', async () => {
-      const decoded = decodeRoyaltyPart(ETH_SECONDARY.encoded);
-      expect(decoded).to.deep.equal(ETH_SECONDARY.decoded);
-    });
+    const encoded = await contract.encodePart(
+      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+    );
+
+    expect(encoded).to.equal(ETH_SECONDARY.encoded);
   });
 
-  describe('Solidity - decode', () => {
-    it('sub - primary', async () => {
-      const { contract } = await loadFixture(deployFixture);
+  it('decode - sub - primary', async () => {
+    const { contract } = await getContract();
 
-      const decoded = await contract.decodeRoyaltyPart(SUB_PRIMARY.encoded);
+    const decoded = await contract.decodePart(SUB_PRIMARY.encoded);
 
-      expectRoyaltyPartStruct(decoded).toEqual(SUB_PRIMARY.decoded);
-    });
-
-    it('eth - secondary', async () => {
-      const { contract } = await loadFixture(deployFixture);
-
-      const decoded = await contract.decodeRoyaltyPart(ETH_SECONDARY.encoded);
-
-      expectRoyaltyPartStruct(decoded).toEqual(ETH_SECONDARY.decoded);
-    });
+    expectRoyaltyPartStruct(decoded).toEqual(SUB_PRIMARY.decoded);
   });
 
-  describe('Solidity - encode', () => {
-    it('sub - primary', async () => {
-      const { contract } = await loadFixture(deployFixture);
+  it('decode - eth - secondary', async () => {
+    const { contract } = await getContract();
 
-      const encoded = await contract.encodeRoyaltyPart(
-        structFromRoyaltyPart(SUB_PRIMARY.decoded),
-      );
+    const decoded = await contract.decodePart(ETH_SECONDARY.encoded);
 
-      expect(encoded).to.equal(SUB_PRIMARY.encoded);
-    });
+    expectRoyaltyPartStruct(decoded).toEqual(ETH_SECONDARY.decoded);
+  });
+});
 
-    it('eth - secondary', async () => {
-      const { contract } = await loadFixture(deployFixture);
+describe.only('Gas prices', () => {
+  it('encoding', async () => {
+    const { contract } = await getContract();
 
-      const encoded = await contract.encodeRoyaltyPart(
-        structFromRoyaltyPart(ETH_SECONDARY.decoded),
-      );
+    const dummyTx = await contract.emitDummyEncoded();
 
-      expect(encoded).to.equal(ETH_SECONDARY.encoded);
-    });
+    const dummyReceipt = Ethereum.parseEthersTxReceipt(await dummyTx.wait());
+
+    const realTx = await contract.encodePartAndEmit(
+      structFromRoyaltyPart(SUB_PRIMARY.decoded),
+    );
+
+    const realReceipt = Ethereum.parseEthersTxReceipt(await realTx.wait());
+
+    logGasDiff('encoding', { dummyReceipt, realReceipt });
+
+    expect(realReceipt.gasUsed).to.gt(dummyReceipt.gasUsed);
+  });
+
+  it('decoding', async () => {
+    const { contract } = await getContract();
+
+    const dummyTx = await contract.emitDummyDecoded();
+
+    const dummyReceipt = Ethereum.parseEthersTxReceipt(await dummyTx.wait());
+
+    const realTx = await contract.decodePartAndEmit(SUB_PRIMARY.encoded);
+
+    const realReceipt = Ethereum.parseEthersTxReceipt(await realTx.wait());
+
+    logGasDiff('decoding', { dummyReceipt, realReceipt });
+
+    expect(realReceipt.gasUsed).to.gt(dummyReceipt.gasUsed);
   });
 });
