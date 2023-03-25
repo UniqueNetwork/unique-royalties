@@ -80,7 +80,7 @@ const encodeAddress = (address: string): [boolean, string] => {
 /**
  * encodes a UniqueRoyaltyPart into a hex string
  * @param part UniqueRoyaltyPart
- *
+ * @returns hex string where first 64 characters are metadata in format:
  * VV000000000000000000000000000000000000000000RADDvvvvvvvvvvvvvvvv
  * where:
  * VV - version
@@ -89,6 +89,8 @@ const encodeAddress = (address: string): [boolean, string] => {
  * A - address type (0 - ethereum, 1 - substrate)
  * DD - decimals
  * vvvvvvvvvvvvvvvvvv - value (uint64)
+ *
+ * and the rest of the string is the address encoded as hex
  */
 export const encodeRoyaltyPart = (
   part: UniqueRoyaltyPart | UniqueRoyaltyPartNoBigint,
@@ -98,6 +100,7 @@ export const encodeRoyaltyPart = (
   const version = part.version.toString(16).padStart(2, '0');
   const royaltyType = part.royaltyType === RoyaltyType.PRIMARY ? '0' : '1';
   const decimals = part.decimals.toString(16).padStart(2, '0');
+
   const value = part.value.toString(16).padStart(16, '0');
 
   const [isEthereum, address] = encodeAddress(part.address);
@@ -110,16 +113,11 @@ export const decodeRoyaltyPart = (encoded: string): UniqueRoyaltyPart => {
   const encodedMeta = encoded.slice(2, 66);
   const encodedAddress = encoded.slice(2 + 64);
 
-  console.log('encodedMeta    ', encodedMeta);
-  console.log('encodedAddress ', encodedAddress);
-
   const version = parseInt(encodedMeta.slice(0, 2), 16);
   const decimals = parseInt(encodedMeta.slice(46, 46 + 2), 16);
   const value = BigInt('0x' + encodedMeta.slice(48));
   const royaltyType =
     encodedMeta[44] === '0' ? RoyaltyType.PRIMARY : RoyaltyType.SECONDARY;
-
-  console.log(encodedMeta[44]);
 
   const isEthereum = encodedMeta[45] === '0';
   const address = isEthereum

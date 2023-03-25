@@ -3,11 +3,8 @@ import { ethers } from 'hardhat';
 import { formatEncoded } from './_util';
 import { expect } from 'chai';
 import { Ethereum } from '@unique-nft/utils/extension';
-import {
-  encodeRoyaltyPart,
-  decodeRoyaltyPart,
-  UniqueRoyaltyPart,
-} from '../unique-royalties';
+import { encodeRoyaltyPart, decodeRoyaltyPart } from '../unique-royalties';
+import { ETH_SECONDARY, SUB_PRIMARY } from './samples';
 
 describe.only('Better royalties', () => {
   async function deployFixture() {
@@ -21,49 +18,56 @@ describe.only('Better royalties', () => {
     return { contract, owner };
   }
 
-  it.only('test - 2', async () => {
-    const royaltyPart: UniqueRoyaltyPart = {
-      version: 1,
-      decimals: 6,
-      value: 7n,
-      royaltyType: 'SECONDARY',
-      address: '0x1234a38988dd5ecc93dd9ce90a44a00e5fb91e4c',
-    };
+  describe('TS - encode', () => {
+    it('sub - primary', async () => {
+      const encoded = encodeRoyaltyPart(SUB_PRIMARY.decoded);
+      expect(encoded).to.equal(SUB_PRIMARY.encoded);
+    });
 
-    const encoded = encodeRoyaltyPart(royaltyPart);
-
-    const decoded = decodeRoyaltyPart(encoded);
-
-    expect(decoded).to.deep.equal(royaltyPart);
-    console.dir(royaltyPart);
-    console.dir(decoded);
-    // console.dir(encoded);
-    console.dir(formatEncoded(encoded));
+    it('eth - secondary', async () => {
+      const encoded = encodeRoyaltyPart(ETH_SECONDARY.decoded);
+      expect(encoded).to.equal(ETH_SECONDARY.encoded);
+    });
   });
 
-  it('test', async () => {
-    const { contract } = await loadFixture(deployFixture);
+  describe('TS - decode', () => {
+    it('sub - primary', async () => {
+      const decoded = decodeRoyaltyPart(SUB_PRIMARY.encoded);
+      expect(decoded).to.deep.equal(SUB_PRIMARY.decoded);
+    });
 
-    const str =
-      '0x' + '0001230400000000000000050000000000000000000000000000000000000000';
-    // + 'VV000000000000000000000000000000000000000000RAddvvvvvvvvvvvvvvvv'
-    // + '0100000000000000000000000000000000000000000010060000000000000007'
-    ('0000000000000000000000001234a38988dd5ecc93dd9ce90a44a00e5fb91e4c');
+    it('eth - secondary', async () => {
+      const decoded = decodeRoyaltyPart(ETH_SECONDARY.encoded);
+      expect(decoded).to.deep.equal(ETH_SECONDARY.decoded);
+    });
+  });
 
-    console.dir(formatEncoded(str));
+  describe.skip('Solidity - encode', () => {
+    it('TBD', async () => {
+      const { contract } = await loadFixture(deployFixture);
 
-    // const result = await contract.decodeEncode(str);
-    const txOrResult = await contract.decodeRoyaltyPart(str);
-    // const txOrResult = await contract.emitSomeShit(str);
+      const str =
+        '0x' +
+        '0001230400000000000000050000000000000000000000000000000000000000';
+      // + 'VV000000000000000000000000000000000000000000RAddvvvvvvvvvvvvvvvv'
+      // + '0100000000000000000000000000000000000000000010060000000000000007'
+      ('0000000000000000000000001234a38988dd5ecc93dd9ce90a44a00e5fb91e4c');
 
-    if (txOrResult.wait) {
-      const receipt = Ethereum.parseEthersTxReceipt(await txOrResult.wait());
+      console.dir(formatEncoded(str));
 
-      // console.dir(receipt);
-    } else {
-      // console.dir(txOrResult);
-    }
+      // const result = await contract.decodeEncode(str);
+      const txOrResult = await contract.decodeRoyaltyPart(str);
+      // const txOrResult = await contract.emitSomeShit(str);
 
-    // console.dir(result);
+      if (txOrResult.wait) {
+        const receipt = Ethereum.parseEthersTxReceipt(await txOrResult.wait());
+
+        // console.dir(receipt);
+      } else {
+        // console.dir(txOrResult);
+      }
+
+      // console.dir(result);
+    });
   });
 });
