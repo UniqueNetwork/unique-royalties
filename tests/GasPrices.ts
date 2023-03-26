@@ -21,7 +21,7 @@ describe('Gas prices', () => {
   it('encoding', async () => {
     const { contract } = await getContract();
 
-    const dummyTx = await contract.emitDummyEncoded();
+    const dummyTx = await contract.emitDummyPartEncoded();
 
     const realTx = await contract.encodePartAndEmit(
       structFromRoyaltyPart(SUB_PRIMARY.decoded),
@@ -33,7 +33,7 @@ describe('Gas prices', () => {
   it('decoding', async () => {
     const { contract } = await getContract();
 
-    const dummyTx = await contract.emitDummyDecoded();
+    const dummyTx = await contract.emitDummyPartDecoded();
 
     const realTx = await contract.decodePartAndEmit(SUB_PRIMARY.encoded);
 

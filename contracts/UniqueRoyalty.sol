@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.18;
+pragma solidity >=0.8.19;
 
 struct CrossAddress {
     address eth;
@@ -34,12 +34,20 @@ library UniqueRoyalty {
     function decode(bytes memory b) internal pure returns (UniqueRoyaltyPart[] memory) {
         if (b.length == 0) return new UniqueRoyaltyPart[](0);
 
-        require(b.length % (64 * 2) == 0, "Invalid bytes length, expected (64 * 2) * UniqueRoyaltyParts count");
-        uint partsCount = b.length / (64 * 2);
+        require((b.length % (32 * 2)) == 0, "Invalid bytes length, expected (64 * 2) * UniqueRoyaltyParts count");
+        uint partsCount = b.length / (32 * 2);
+        uint numbersCount = partsCount * 2;
 
         UniqueRoyaltyPart[] memory parts = new UniqueRoyaltyPart[](partsCount);
 
-        uint256[] memory encoded = abi.decode(b, (uint256[]));
+        // need this because numbers encoded via abi.encodePacked
+        bytes memory prefix = new bytes(64);
+        assembly {
+            mstore(add(prefix, 32), 32)
+            mstore(add(prefix, 64), numbersCount)
+        }
+
+        uint256[] memory encoded = abi.decode(bytes.concat(prefix, b), (uint256[]));
 
         for (uint i = 0; i < partsCount; i++) {
             parts[i] = decodePart(encoded[i * 2], encoded[i * 2 + 1]);
@@ -60,7 +68,7 @@ library UniqueRoyalty {
             encoded[i * 2 + 1] = encodedAddress;
         }
 
-        return abi.encode(encoded);
+        return abi.encodePacked(encoded);
     }
 
     function decodePart(

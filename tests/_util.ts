@@ -12,7 +12,7 @@ export const formatEncoded = (encoded: string): string[] =>
   encoded.substring(2).match(/.{1,64}/g) ?? [];
 
 export const expectRoyaltyPartStruct = (
-  actual: UniqueRoyaltyPartStructOutput,
+  actual: UniqueRoyaltyPartStructOutput | any,
 ) => ({
   toEqual: (expected: UniqueRoyaltyPart) => {
     const [version, decimals, value, royaltyType, address] = actual;

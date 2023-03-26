@@ -7,7 +7,7 @@ const config: HardhatUserConfig = {
     tests: './tests',
   },
   solidity: {
-    version: '0.8.18',
+    version: '0.8.19',
   },
   gasReporter: {
     // enabled: true,
