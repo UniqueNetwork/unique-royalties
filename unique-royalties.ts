@@ -132,3 +132,26 @@ export const decodeRoyaltyPart = (encoded: string): UniqueRoyaltyPart => {
     address,
   };
 };
+
+export const encodeRoyalty = (
+  parts: (UniqueRoyaltyPart | UniqueRoyaltyPartNoBigint)[],
+): string =>
+  '0x' + parts.map((part) => encodeRoyaltyPart(part).substring(2)).join('');
+
+const splitStringEvery = (str: string, every: number): string[] => {
+  const result = [];
+
+  for (let i = 0; i < str.length; i += every) {
+    result.push(str.substring(i, i + every));
+  }
+
+  return result;
+};
+
+export const decodeRoyalty = (encoded: string): UniqueRoyaltyPart[] => {
+  const parts = splitStringEvery(encoded.substring(2), 128).map(
+    (encoded) => '0x' + encoded,
+  );
+
+  return parts.map((part) => decodeRoyaltyPart(part));
+};

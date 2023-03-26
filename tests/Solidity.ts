@@ -4,11 +4,11 @@ import {
   getContract,
   structFromRoyaltyPart,
 } from './_util';
-import { ETH_SECONDARY, SUB_PRIMARY } from './_samples';
+import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
 import { expect } from 'chai';
 
 describe('Solidity implementation', () => {
-  describe('UniqueRoyaltyParts', () => {
+  describe('UniqueRoyaltyPart', () => {
     it('encode - sub - primary', async () => {
       const { contract } = await getContract();
 
@@ -47,20 +47,15 @@ describe('Solidity implementation', () => {
   });
 
   describe('UniqueRoyalty', () => {
-    const ROYALTY_ENCODED =
-      SUB_PRIMARY.encoded + ETH_SECONDARY.encoded.slice(2);
-
-    const ROYALTY_DECODED = [SUB_PRIMARY.decoded, ETH_SECONDARY.decoded];
-
-    const ROYALTY_AS_STRUCTS_ARRAY = [
-      structFromRoyaltyPart(SUB_PRIMARY.decoded),
-      structFromRoyaltyPart(ETH_SECONDARY.decoded),
-    ];
-
     it('encode', async () => {
       const { contract } = await getContract();
 
-      const encoded = await contract.encode(ROYALTY_AS_STRUCTS_ARRAY);
+      const asStructsArray = [
+        structFromRoyaltyPart(SUB_PRIMARY.decoded),
+        structFromRoyaltyPart(ETH_SECONDARY.decoded),
+      ];
+
+      const encoded = await contract.encode(asStructsArray);
 
       expect(encoded).to.equal(ROYALTY_ENCODED);
     });
