@@ -7,12 +7,12 @@ struct CrossAddress {
     uint256 sub;
 }
 
-enum RoyaltyType{
+enum RoyaltyType {
     PRIMARY,        /* 0 */
     SECONDARY       /* 1 */
 }
 
-enum AddressType{
+enum AddressType {
     ETH,            /* 0 */
     SUB             /* 1 */
 }
