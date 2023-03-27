@@ -31,17 +31,20 @@ library UniqueRoyalty {
     uint private constant ROYALTY_TYPE_OFFSET = 4 * (16 + 2 + 1);
     uint private constant VERSION_OFFSET = 4 * (16 + 2 + 1 + 1 + 42);
 
+    uint private constant PART_LENGTH = 32 * 2;
+
     function decode(bytes memory b) internal pure returns (UniqueRoyaltyPart[] memory) {
         if (b.length == 0) return new UniqueRoyaltyPart[](0);
 
-        require((b.length % (32 * 2)) == 0, "Invalid bytes length, expected (64 * 2) * UniqueRoyaltyParts count");
-        uint partsCount = b.length / (32 * 2);
+        require((b.length % PART_LENGTH) == 0, "Invalid bytes length, expected (32 * 2) * UniqueRoyaltyParts count");
+        uint partsCount = b.length / PART_LENGTH;
         uint numbersCount = partsCount * 2;
 
         UniqueRoyaltyPart[] memory parts = new UniqueRoyaltyPart[](partsCount);
 
         // need this because numbers encoded via abi.encodePacked
         bytes memory prefix = new bytes(64);
+
         assembly {
             mstore(add(prefix, 32), 32)
             mstore(add(prefix, 64), numbersCount)
