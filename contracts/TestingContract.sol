@@ -72,7 +72,6 @@ contract TestingContract {
     // UniqueRoyalty testing methods
 
     function decode(bytes memory b) public pure returns (UniqueRoyaltyPart[] memory) {
-//        return UniqueRoyalty.decode(ROYALTY_BYTES2);
         return UniqueRoyalty.decode(b);
     }
 
@@ -126,33 +125,5 @@ contract TestingContract {
 
     function emitDummyEncoded() public {
         emit Encoded(ROYALTY_BYTES);
-    }
-
-    function getMultipleEncoded() public pure returns (bytes memory) {
-        UniqueRoyaltyPart[] memory parts = new UniqueRoyaltyPart[](2);
-
-        parts[0] = UniqueRoyaltyPart({
-            version: 1,
-            decimals: 6,
-            value: 15,
-            royaltyType: RoyaltyType.SECONDARY,
-            crossAddress: CrossAddress({
-                eth: address(0x1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C),
-                sub: 0
-            })
-        });
-
-        parts[1] = UniqueRoyaltyPart({
-            version: 1,
-            decimals: 6,
-            value: 15,
-            royaltyType: RoyaltyType.SECONDARY,
-            crossAddress: CrossAddress({
-                eth: address(0x1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C),
-                sub: 0
-            })
-        });
-
-        return UniqueRoyalty.encode(parts);
     }
 }
