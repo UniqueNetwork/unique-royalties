@@ -74,6 +74,14 @@ library UniqueRoyalty {
         return abi.encodePacked(encoded);
     }
 
+    function decodePart(bytes memory b) internal pure returns (UniqueRoyaltyPart memory) {
+        require(b.length == PART_LENGTH, "Invalid bytes length, expected 32 * 2");
+
+        uint256[2] memory encoded = abi.decode(b, (uint256[2]));
+
+        return decodePart(encoded[0], encoded[1]);
+    }
+
     function decodePart(
         uint256 _meta,
         uint256 _address
