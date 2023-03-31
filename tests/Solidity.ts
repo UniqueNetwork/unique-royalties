@@ -1,16 +1,14 @@
-import {
-  expectRoyaltyPartStruct,
-  formatEncoded,
-  getContract,
-  structFromRoyaltyPart,
-} from './_util';
+import { expectRoyaltyPartStruct, structFromRoyaltyPart } from './_util';
 import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
 import { expect } from 'chai';
+import { libTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 
 describe('Solidity implementation', () => {
+  const deployed = loadFixtureOrDeploy(libTestingFixture);
+
   describe('UniqueRoyaltyPart', () => {
     it('encode - sub - primary', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const encoded = await contract.encodePart(
         structFromRoyaltyPart(SUB_PRIMARY.decoded),
@@ -20,7 +18,7 @@ describe('Solidity implementation', () => {
     });
 
     it('encode - eth - secondary', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const encoded = await contract.encodePart(
         structFromRoyaltyPart(ETH_SECONDARY.decoded),
@@ -30,7 +28,7 @@ describe('Solidity implementation', () => {
     });
 
     it('decode - sub - primary', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const decoded = await contract.decodePart(SUB_PRIMARY.encoded);
 
@@ -38,7 +36,7 @@ describe('Solidity implementation', () => {
     });
 
     it('decode - eth - secondary', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const decoded = await contract.decodePart(ETH_SECONDARY.encoded);
 
@@ -48,7 +46,7 @@ describe('Solidity implementation', () => {
 
   describe('UniqueRoyalty', () => {
     it('encode', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const asStructsArray = [
         structFromRoyaltyPart(SUB_PRIMARY.decoded),
@@ -61,7 +59,7 @@ describe('Solidity implementation', () => {
     });
 
     it('decode', async () => {
-      const { contract } = await getContract();
+      const { contract } = await deployed;
 
       const [first, second] = await contract.decode(ROYALTY_ENCODED);
 

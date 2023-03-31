@@ -5,10 +5,8 @@ import {
 import { RoyaltyType, UniqueRoyaltyPart } from '../unique-royalties';
 import { expect } from 'chai';
 import { Address } from '@unique-nft/utils/address';
-import { ethers } from 'hardhat';
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 
-export const formatEncoded = (encoded: string): string[] =>
+export const formatBytes = (encoded: string): string[] =>
   encoded.substring(2).match(/.{1,64}/g) ?? [];
 
 export const expectRoyaltyPartStruct = (
@@ -55,16 +53,6 @@ export const structFromRoyaltyPart = (
         sub: Address.substrate.decode(part.address).bigint,
       },
 });
-
-async function deployFixture() {
-  const TestingContract = await ethers.getContractFactory('TestingContract');
-
-  const contract = await TestingContract.deploy();
-
-  return { contract };
-}
-
-export const getContract = () => loadFixture(deployFixture);
 
 export const logGasDiff = (
   name: string,

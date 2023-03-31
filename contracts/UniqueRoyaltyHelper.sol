@@ -17,7 +17,7 @@ struct RoyaltyAmount {
     uint amount;
 }
 
-library UniqueRoyaltyHelper {
+contract UniqueRoyaltyHelper {
     function encodePart(UniqueRoyaltyPart memory part) public pure returns (bytes memory) {
         (uint256 encodedMeta, uint256 encodedAddress) = UniqueRoyalty.encodePart(part);
 
@@ -28,9 +28,9 @@ library UniqueRoyaltyHelper {
         return UniqueRoyalty.decodePart(data);
     }
 
-    function validatePart(UniqueRoyaltyPart memory part) public pure returns (bool isValid) {
-        // todo
-        isValid = true;
+    // todo - implement
+    function validatePart(bytes memory b) public pure returns (bool isValid) {
+        isValid = b.length == 64;
     }
 
     function encode(UniqueRoyaltyPart[] memory royalties) public pure returns (bytes memory) {
@@ -41,9 +41,9 @@ library UniqueRoyaltyHelper {
         return UniqueRoyalty.decode(data);
     }
 
-    function validate(UniqueRoyaltyPart[] memory royalties) public pure returns (bool isValid) {
-        // todo
-        isValid = true;
+    // todo - implement
+    function validate(bytes memory b) public pure returns (bool) {
+        return b.length % 64 == 0;
     }
 
     function getTokenRoyalty(address collection, uint tokenId) public view returns (UniqueRoyaltyPart[] memory) {
@@ -66,18 +66,18 @@ library UniqueRoyaltyHelper {
         }
     }
 
+    // todo - implement
     function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
-        // todo
         return new LibPart.Part[](0);
     }
 
+    // todo - implement
     function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint amount) public pure returns (RoyaltyAmount[] memory) {
-        // todo
         return new RoyaltyAmount[](0);
     }
 
+    // todo - implement
     function calculateRoyalties(address collection, uint tokenId, uint amount) public view returns (RoyaltyAmount[] memory) {
-        // todo
         UniqueRoyaltyPart[] memory royalties = getRoyalty(collection, tokenId);
 
         return calculateRoyalties(royalties, amount);

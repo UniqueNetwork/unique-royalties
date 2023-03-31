@@ -1,8 +1,9 @@
 import { expect } from 'chai';
 import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
-import { getContract, logGasDiff, structFromRoyaltyPart } from './_util';
+import { logGasDiff, structFromRoyaltyPart } from './_util';
 import { Ethereum } from '@unique-nft/utils/extension';
 import { ContractTransaction } from 'ethers';
+import { libTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 
 const compare = async (
   name: string,
@@ -18,8 +19,10 @@ const compare = async (
 };
 
 describe('Gas prices', () => {
+  const deployed = loadFixtureOrDeploy(libTestingFixture);
+
   it('encoding part', async () => {
-    const { contract } = await getContract();
+    const { contract } = await deployed;
 
     const dummyTx = await contract.emitDummyPartEncoded();
 
@@ -31,7 +34,7 @@ describe('Gas prices', () => {
   });
 
   it('decoding part', async () => {
-    const { contract } = await getContract();
+    const { contract } = await deployed;
 
     const dummyTx = await contract.emitDummyPartDecoded();
 
@@ -41,7 +44,7 @@ describe('Gas prices', () => {
   });
 
   it('encoding', async () => {
-    const { contract } = await getContract();
+    const { contract } = await deployed;
 
     const dummyTx = await contract.emitDummyEncoded();
 
@@ -54,7 +57,7 @@ describe('Gas prices', () => {
   });
 
   it('decoding', async () => {
-    const { contract } = await getContract();
+    const { contract } = await deployed;
 
     const dummyTx = await contract.emitDummyDecoded();
 

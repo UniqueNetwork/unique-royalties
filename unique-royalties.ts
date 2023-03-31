@@ -5,6 +5,8 @@ export enum RoyaltyType {
   SECONDARY = 'SECONDARY',
 }
 
+export const ROYALTIES_PROPERTY = 'royalties';
+
 export interface UniqueRoyaltyPart {
   version: number;
   decimals: number;
