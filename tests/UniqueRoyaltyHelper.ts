@@ -1,9 +1,9 @@
-import { ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
+import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
 import { expect } from 'chai';
 import { helperTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 import { ROYALTIES_PROPERTY } from '../unique-royalties';
 
-describe('UniqueRoyaltyHelper', () => {
+describe.only('UniqueRoyaltyHelper', () => {
   const deploy = loadFixtureOrDeploy(helperTestingFixture);
 
   it('Collection and tokens royalties', async function () {
@@ -58,5 +58,24 @@ describe('UniqueRoyaltyHelper', () => {
     expect(collectionRoyalty.length).to.equal(2);
     expect(tokenRoyalty.length).to.equal(1);
     expect(royalty).to.deep.equal(tokenRoyalty);
+  });
+
+  it('Validation', async function () {
+    const { uniqueRoyaltyHelper } = await deploy;
+
+    const ok = await Promise.all([
+      uniqueRoyaltyHelper.validate(ROYALTY_ENCODED),
+      uniqueRoyaltyHelper.validatePart(SUB_PRIMARY.encoded),
+      uniqueRoyaltyHelper.validatePart(ETH_SECONDARY.encoded),
+    ]);
+
+    expect(ok.every((i) => i)).to.equal(true);
+
+    const notOk = await Promise.all([
+      uniqueRoyaltyHelper.validatePart(ROYALTY_ENCODED),
+      uniqueRoyaltyHelper.validate(ETH_SECONDARY.encoded.substring(0, 10)),
+    ]);
+
+    expect(notOk.every((i) => !i)).to.equal(true);
   });
 });
