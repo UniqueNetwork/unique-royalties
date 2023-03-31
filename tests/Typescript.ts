@@ -1,4 +1,6 @@
 import {
+  calculateAmount,
+  calculateRoyalty,
   decodeRoyalty,
   decodeRoyaltyPart,
   encodeRoyalty,
@@ -46,6 +48,29 @@ describe('TS implementation', () => {
       const decoded = decodeRoyalty(ROYALTY_ENCODED);
 
       expect(decoded).to.deep.equal(ROYALTY_DECODED);
+    });
+  });
+
+  describe('Calculate royalty', () => {
+    it('should calculate royalty', () => {
+      expect(calculateAmount(1n, 0, 100n)).to.equal(1);
+      expect(calculateAmount(100n, 0, 100n)).to.equal(100);
+      expect(calculateAmount(50n, 0, 100n)).to.equal(50);
+      expect(calculateAmount(1n, 6, 1_000_000_000n)).to.equal(10);
+
+      expect(
+        calculateRoyalty(SUB_PRIMARY.decoded, 1_000_000_000_000n),
+      ).to.deep.equal({
+        address: SUB_PRIMARY.decoded.address,
+        amount: 255_000_000n,
+      });
+
+      expect(
+        calculateRoyalty(ETH_SECONDARY.decoded, 1_000_000_000_000n),
+      ).to.deep.equal({
+        address: ETH_SECONDARY.decoded.address,
+        amount: 150_000n,
+      });
     });
   });
 });

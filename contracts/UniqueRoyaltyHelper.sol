@@ -66,17 +66,26 @@ contract UniqueRoyaltyHelper {
         }
     }
 
-    // todo - implement
-    function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
-        return new LibPart.Part[](0);
+//     todo - implement
+//    function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
+//        return new LibPart.Part[](0);
+//    }
+
+    function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {
+        RoyaltyAmount[] memory royaltyAmounts = new RoyaltyAmount[](royalties.length);
+
+        for (uint i = 0; i < royalties.length; i++) {
+            uint amount = (sellPrice * royalties[i].value) / (10 ** (2 + royalties[i].decimals));
+
+            royaltyAmounts[i] = RoyaltyAmount({
+                crossAddress: royalties[i].crossAddress,
+                amount: amount
+            });
+        }
+
+        return royaltyAmounts;
     }
 
-    // todo - implement
-    function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint amount) public pure returns (RoyaltyAmount[] memory) {
-        return new RoyaltyAmount[](0);
-    }
-
-    // todo - implement
     function calculateRoyalties(address collection, uint tokenId, uint amount) public view returns (RoyaltyAmount[] memory) {
         UniqueRoyaltyPart[] memory royalties = getRoyalty(collection, tokenId);
 

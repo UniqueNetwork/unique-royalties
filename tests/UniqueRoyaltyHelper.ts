@@ -1,9 +1,11 @@
 import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
 import { expect } from 'chai';
 import { helperTestingFixture, loadFixtureOrDeploy } from './_fixtures';
-import { ROYALTIES_PROPERTY } from '../unique-royalties';
+import { structFromRoyaltyPart } from './_util';
+import { calculateRoyalty, ROYALTIES_PROPERTY } from '../unique-royalties';
+import { Address } from '@unique-nft/utils/address';
 
-describe.only('UniqueRoyaltyHelper', () => {
+describe('UniqueRoyaltyHelper', () => {
   const deploy = loadFixtureOrDeploy(helperTestingFixture);
 
   it('Collection and tokens royalties', async function () {
@@ -77,5 +79,50 @@ describe.only('UniqueRoyaltyHelper', () => {
     ]);
 
     expect(notOk.every((i) => !i)).to.equal(true);
+  });
+
+  it('Calculation', async function () {
+    const { uniqueRoyaltyHelper } = await deploy;
+
+    const sellPrice = 1_000_000_000_000n;
+
+    const asStruct = [
+      structFromRoyaltyPart(SUB_PRIMARY.decoded),
+      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+    ];
+
+    const [sub] = await uniqueRoyaltyHelper.calculateRoyalties(
+      asStruct.slice(0, 1),
+      sellPrice,
+    );
+
+    const [eth] = await uniqueRoyaltyHelper.calculateRoyalties(
+      asStruct.slice(1, 2),
+      sellPrice,
+    );
+
+    const both = await uniqueRoyaltyHelper.calculateRoyalties(
+      asStruct,
+      sellPrice,
+    );
+
+    expect(both[0]).to.deep.equal(sub);
+    expect(both[1]).to.deep.equal(eth);
+
+    expect(sub.crossAddress.sub).to.equal(
+      Address.substrate.decode(SUB_PRIMARY.decoded.address).bigint,
+    );
+
+    expect(eth.crossAddress.eth.toLowerCase()).to.equal(
+      ETH_SECONDARY.decoded.address,
+    );
+
+    expect(sub.amount.toBigInt()).to.equal(
+      calculateRoyalty(SUB_PRIMARY.decoded, sellPrice).amount,
+    );
+
+    expect(eth.amount.toBigInt()).to.equal(
+      calculateRoyalty(ETH_SECONDARY.decoded, sellPrice).amount,
+    );
   });
 });
