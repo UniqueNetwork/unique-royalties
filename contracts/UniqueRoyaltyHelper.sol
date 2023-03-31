@@ -85,9 +85,9 @@ contract UniqueRoyaltyHelper {
         return royaltyAmounts;
     }
 
-    function calculateRoyalties(address collection, uint tokenId, uint amount) public view returns (RoyaltyAmount[] memory) {
+    function calculate(address collection, uint tokenId, uint sellPrice) public view returns (RoyaltyAmount[] memory) {
         UniqueRoyaltyPart[] memory royalties = getRoyalty(collection, tokenId);
 
-        return calculateRoyalties(royalties, amount);
+        return calculateRoyalties(royalties, sellPrice);
     }
 }
