@@ -6,7 +6,7 @@ import {
   calculateRoyalty,
   toLibPart,
   ROYALTIES_PROPERTY,
-} from '../unique-royalties';
+} from '../ts-implementation';
 import { Address } from '@unique-nft/utils/address';
 
 describe('UniqueRoyaltyHelper', () => {

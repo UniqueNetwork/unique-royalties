@@ -5,7 +5,7 @@ import {
   decodeRoyaltyPart,
   encodeRoyalty,
   encodeRoyaltyPart,
-} from '../unique-royalties';
+} from '../ts-implementation';
 import {
   ETH_SECONDARY,
   SUB_PRIMARY,

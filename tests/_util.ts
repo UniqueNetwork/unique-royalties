@@ -2,7 +2,7 @@ import {
   UniqueRoyaltyPartStruct,
   UniqueRoyaltyPartStructOutput,
 } from '../typechain-types/TestingContract';
-import { RoyaltyType, UniqueRoyaltyPart } from '../unique-royalties';
+import { RoyaltyType, UniqueRoyaltyPart } from '../ts-implementation';
 import { expect } from 'chai';
 import { Address } from '@unique-nft/utils/address';
 

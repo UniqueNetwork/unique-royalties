@@ -1,4 +1,4 @@
-import { UniqueRoyaltyPart } from '../unique-royalties';
+import { UniqueRoyaltyPart } from '../ts-implementation';
 
 type Sample = {
   decoded: UniqueRoyaltyPart;
