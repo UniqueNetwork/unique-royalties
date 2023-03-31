@@ -1,3 +1,5 @@
+import { address } from 'hardhat/internal/core/config/config-validation';
+
 export enum RoyaltyType {
   PRIMARY = 'PRIMARY',
   SECONDARY = 'SECONDARY',
@@ -18,4 +20,9 @@ export type UniqueRoyaltyPartNoBigint = Omit<UniqueRoyaltyPart, 'value'> & {
 export type RoyaltyAmount = {
   address: string;
   amount: bigint;
+};
+
+export type LibPart = {
+  account: string;
+  value: bigint;
 };

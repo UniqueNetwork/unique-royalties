@@ -25,6 +25,12 @@ struct UniqueRoyaltyPart {
     CrossAddress crossAddress;
 }
 
+library CrossAddressLib {
+    function toAddress(CrossAddress memory crossAddress) internal pure returns (address) {
+        return crossAddress.eth != address(0) ? crossAddress.eth : address(uint160(crossAddress.sub >> 96));
+    }
+}
+
 library UniqueRoyalty {
     uint private constant DECIMALS_OFFSET = 4 * 16;
     uint private constant ADDRESS_TYPE_OFFSET = 4 * (16 + 2);

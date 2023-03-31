@@ -66,8 +66,18 @@ contract UniqueRoyaltyHelper {
         }
     }
 
-    function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
-        return new LibPart.Part[](0);
+    // todo - check decimals conversions are ok; assume LibPart.Part has 2 decimal places (12345 == 1.2345%)
+    function convertToLibParts(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
+        LibPart.Part[] memory parts = new LibPart.Part[](royalties.length);
+
+        for (uint i = 0; i < royalties.length; i++) {
+            parts[i] = LibPart.Part({
+                account: payable(CrossAddressLib.toAddress(royalties[i].crossAddress)),
+                value: uint96(royalties[i].value * (10 ** (royalties[i].decimals - 2)))
+            });
+        }
+
+        return parts;
     }
 
     function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {

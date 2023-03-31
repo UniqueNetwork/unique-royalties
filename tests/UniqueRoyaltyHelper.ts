@@ -2,7 +2,11 @@ import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
 import { expect } from 'chai';
 import { helperTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 import { structFromRoyaltyPart } from './_util';
-import { calculateRoyalty, ROYALTIES_PROPERTY } from '../unique-royalties';
+import {
+  calculateRoyalty,
+  toLibPart,
+  ROYALTIES_PROPERTY,
+} from '../unique-royalties';
 import { Address } from '@unique-nft/utils/address';
 
 describe('UniqueRoyaltyHelper', () => {
@@ -123,6 +127,29 @@ describe('UniqueRoyaltyHelper', () => {
 
     expect(eth.amount.toBigInt()).to.equal(
       calculateRoyalty(ETH_SECONDARY.decoded, sellPrice).amount,
+    );
+  });
+
+  it('Transformation to Lib.Part', async () => {
+    const { uniqueRoyaltyHelper } = await deploy;
+
+    const asStruct = [
+      structFromRoyaltyPart(SUB_PRIMARY.decoded),
+      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+    ];
+
+    const [subLibPart, ethLibPart] =
+      await uniqueRoyaltyHelper.convertToLibParts(asStruct);
+
+    const expectedSubLibPart = toLibPart(SUB_PRIMARY.decoded);
+    const expectedEthLibPart = toLibPart(ETH_SECONDARY.decoded);
+
+    expect(subLibPart.value.toBigInt()).to.equal(expectedSubLibPart.value);
+    expect(subLibPart.account).to.equal(expectedSubLibPart.account);
+
+    expect(ethLibPart.value.toBigInt()).to.equal(expectedEthLibPart.value);
+    expect(ethLibPart.account.toLowerCase()).to.equal(
+      expectedEthLibPart.account,
     );
   });
 });
