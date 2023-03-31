@@ -28,7 +28,7 @@ contract UniqueRoyaltyHelper {
         return UniqueRoyalty.decodePart(data);
     }
 
-    // todo - implement
+    // todo - implement smth better - check royalties sum is lte 100%
     function validatePart(bytes memory b) public pure returns (bool isValid) {
         isValid = b.length == 64;
     }
@@ -41,7 +41,7 @@ contract UniqueRoyaltyHelper {
         return UniqueRoyalty.decode(data);
     }
 
-    // todo - implement
+    // todo - implement smth better - check royalties sum is lte 100%
     function validate(bytes memory b) public pure returns (bool) {
         return b.length % 64 == 0;
     }
@@ -66,10 +66,9 @@ contract UniqueRoyaltyHelper {
         }
     }
 
-//     todo - implement
-//    function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
-//        return new LibPart.Part[](0);
-//    }
+    function convertToRaribleV2(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
+        return new LibPart.Part[](0);
+    }
 
     function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {
         RoyaltyAmount[] memory royaltyAmounts = new RoyaltyAmount[](royalties.length);
