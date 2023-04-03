@@ -1,5 +1,3 @@
-import { address } from 'hardhat/internal/core/config/config-validation';
-
 export enum RoyaltyType {
   PRIMARY = 'PRIMARY',
   SECONDARY = 'SECONDARY',
@@ -12,6 +10,8 @@ export interface UniqueRoyaltyPart {
   royaltyType: RoyaltyType | `${RoyaltyType}`;
   address: string;
 }
+
+type UniqueRoyalty = Array<UniqueRoyaltyPart>;
 
 export type UniqueRoyaltyPartNoBigint = Omit<UniqueRoyaltyPart, 'value'> & {
   value: number;

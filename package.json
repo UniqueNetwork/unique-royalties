@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "compile": "hardhat compile",
+    "test:uniqsu": "hardhat test --network uniqsu",
+    "test:opal": "hardhat test --network opal",
     "test": "hardhat test",
     "clean": "hardhat clean"
   },

@@ -8,7 +8,7 @@ const { PRIVATE_KEY, PRIVATE_KEY_2 } = dotenvConfig().parsed;
 
 const accounts = [PRIVATE_KEY, PRIVATE_KEY_2];
 
-export const opalDev: HttpNetworkUserConfig = {
+export const uniqsu: HttpNetworkUserConfig = {
   url: 'https://rpc-o.unq.uniq.su',
   chainId: 8882,
   accounts,
@@ -40,7 +40,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     opal,
-    opalDev,
+    uniqsu,
     hardhat: {
       accounts: accounts.map((privateKey) => ({
         privateKey,

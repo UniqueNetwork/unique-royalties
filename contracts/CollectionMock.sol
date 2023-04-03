@@ -7,13 +7,23 @@ struct Property {
     bytes value;
 }
 
-interface ICollection {
-    function setProperties(uint256 tokenId, Property[] memory properties) external payable;
-
-    function property(uint256 tokenId, string memory key) external view returns (bytes memory);
+struct TokenPropertyPermission {
+    string key;
+    PropertyPermission[] permissions;
 }
 
-contract CollectionMock is ICollection {
+struct PropertyPermission {
+    TokenPermissionField code;
+    bool value;
+}
+
+enum TokenPermissionField {
+    Mutable,
+    TokenOwner,
+    CollectionAdmin
+}
+
+contract CollectionMock {
     mapping(string => bytes) public collectionProperties;
 
     mapping(uint256 => mapping(string => bytes)) public tokenProperties;
@@ -36,5 +46,9 @@ contract CollectionMock is ICollection {
 
     function property(uint256 tokenId, string memory key) external view returns (bytes memory) {
         return tokenProperties[tokenId][key];
+    }
+
+    function setTokenPropertyPermissions(TokenPropertyPermission[] memory permissions) public payable {
+        // do nothing
     }
 }

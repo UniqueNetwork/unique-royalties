@@ -1,5 +1,12 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { ethers } from 'hardhat';
+import { Ethereum } from '@unique-nft/utils/extension';
+
+import {
+  CollectionHelpersFactory,
+  UniqueNFTFactory,
+  constants,
+} from '@unique-nft/solidity-interfaces';
 
 export async function loadFixtureOrDeploy<T>(
   fixture: () => Promise<T>,
@@ -19,11 +26,9 @@ export async function libTestingFixture() {
   return { contract };
 }
 
-const COLLECTION_HELPERS_ADDRESS = '0x6C4E9fE1AE37a41E93CEE429e8E1881aBdcbb54F';
-
 export async function helperTestingFixture() {
   const collectionHelpersCode = await ethers.provider.getCode(
-    COLLECTION_HELPERS_ADDRESS,
+    constants.STATIC_ADDRESSES.collectionHelpers,
   );
 
   const UniqueRoyaltyHelper = await ethers.getContractFactory(
@@ -32,12 +37,35 @@ export async function helperTestingFixture() {
 
   const uniqueRoyaltyHelper = await UniqueRoyaltyHelper.deploy();
 
-  if (!collectionHelpersCode || collectionHelpersCode === '0x') {
-    const CollectionMock = await ethers.getContractFactory('CollectionMock');
-    const collection = await CollectionMock.deploy();
+  if (collectionHelpersCode && collectionHelpersCode !== '0x') {
+    const [signer] = await ethers.getSigners();
+
+    const collectionHelpers = await CollectionHelpersFactory(signer, ethers);
+
+    const collectionTx = await collectionHelpers.createNFTCollection(
+      'Test',
+      'test',
+      'TST',
+      { value: await collectionHelpers.collectionCreationFee() },
+    );
+
+    const parsed = Ethereum.parseEthersTxReceipt<{
+      CollectionCreated: { collectionId: string };
+    }>(await collectionTx.wait());
+
+    const collection = await UniqueNFTFactory(
+      parsed.events.CollectionCreated.collectionId,
+      signer,
+      ethers,
+    );
+
+    await (await collection.mint(signer.address)).wait();
 
     return { collection, uniqueRoyaltyHelper };
   }
 
-  return { uniqueRoyaltyHelper };
+  const CollectionMock = await ethers.getContractFactory('CollectionMock');
+  const collection = await CollectionMock.deploy();
+
+  return { collection, uniqueRoyaltyHelper };
 }

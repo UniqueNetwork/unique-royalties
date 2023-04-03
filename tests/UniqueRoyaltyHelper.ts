@@ -12,58 +12,58 @@ import { Address } from '@unique-nft/utils/address';
 describe('UniqueRoyaltyHelper', () => {
   const deploy = loadFixtureOrDeploy(helperTestingFixture);
 
+  const getAllRoyalties = async (collection, uniqueRoyaltyHelper) => {
+    const collectionRoyalty = await uniqueRoyaltyHelper.getCollectionRoyalty(
+      collection.address,
+    );
+
+    const tokenRoyalty = await uniqueRoyaltyHelper.getTokenRoyalty(
+      collection.address,
+      1,
+    );
+
+    const royalty = await uniqueRoyaltyHelper.getRoyalty(collection.address, 1);
+
+    return { collectionRoyalty, tokenRoyalty, royalty };
+  };
+
   it('Collection and tokens royalties', async function () {
+    this.timeout(120_000);
+
     const { collection, uniqueRoyaltyHelper } = await deploy;
 
-    let collectionRoyalty;
-    let tokenRoyalty;
-    let royalty;
+    let allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
+    expect(allRoyalties.collectionRoyalty.length).to.equal(0);
+    expect(allRoyalties.tokenRoyalty.length).to.equal(0);
+    expect(allRoyalties.royalty.length).to.equal(0);
 
-    const refreshRoyalties = async () => {
-      collectionRoyalty = await uniqueRoyaltyHelper.getCollectionRoyalty(
-        collection.address,
-      );
+    await (
+      await collection.setCollectionProperties([
+        { key: ROYALTIES_PROPERTY, value: ROYALTY_ENCODED },
+      ])
+    ).wait();
 
-      tokenRoyalty = await uniqueRoyaltyHelper.getTokenRoyalty(
-        collection.address,
-        1,
-      );
+    allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
 
-      royalty = await uniqueRoyaltyHelper.getRoyalty(collection.address, 1);
-    };
+    expect(allRoyalties.collectionRoyalty.length).to.equal(2);
+    expect(allRoyalties.royalty).to.deep.equal(allRoyalties.collectionRoyalty);
+    expect(allRoyalties.tokenRoyalty.length).to.equal(0);
 
-    await refreshRoyalties();
+    await (
+      await collection.setTokenPropertyPermissions([
+        { key: ROYALTIES_PROPERTY, permissions: [{ code: 2, value: true }] },
+      ])
+    ).wait();
 
-    expect(collectionRoyalty.length).to.equal(0);
-    expect(tokenRoyalty.length).to.equal(0);
-    expect(royalty.length).to.equal(0);
-
-    await collection.setCollectionProperties([
-      {
-        key: ROYALTIES_PROPERTY,
-        value: ROYALTY_ENCODED,
-      },
+    const setTokenPropsTx = await collection.setProperties(1, [
+      { key: ROYALTIES_PROPERTY, value: SUB_PRIMARY.encoded },
     ]);
 
-    await refreshRoyalties();
+    allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
 
-    expect(collectionRoyalty.length).to.equal(2);
-    expect(royalty).to.deep.equal(collectionRoyalty);
-
-    expect(tokenRoyalty.length).to.equal(0);
-
-    await collection.setProperties(1, [
-      {
-        key: ROYALTIES_PROPERTY,
-        value: SUB_PRIMARY.encoded,
-      },
-    ]);
-
-    await refreshRoyalties();
-
-    expect(collectionRoyalty.length).to.equal(2);
-    expect(tokenRoyalty.length).to.equal(1);
-    expect(royalty).to.deep.equal(tokenRoyalty);
+    expect(allRoyalties.collectionRoyalty.length).to.equal(2);
+    expect(allRoyalties.tokenRoyalty.length).to.equal(1);
+    expect(allRoyalties.royalty).to.deep.equal(allRoyalties.tokenRoyalty);
   });
 
   it('Validation', async function () {

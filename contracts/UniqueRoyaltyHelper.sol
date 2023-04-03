@@ -47,15 +47,19 @@ contract UniqueRoyaltyHelper {
     }
 
     function getTokenRoyalty(address collection, uint tokenId) public view returns (UniqueRoyaltyPart[] memory) {
-        bytes memory encoded = ICollection(collection).property(tokenId, ROYALTIES_PROPERTY);
-
-        return UniqueRoyalty.decode(encoded);
+        try ICollection(collection).property(tokenId, ROYALTIES_PROPERTY) returns (bytes memory encoded) {
+            return UniqueRoyalty.decode(encoded);
+        } catch {
+            return new UniqueRoyaltyPart[](0);
+        }
     }
 
     function getCollectionRoyalty(address collection) public view returns (UniqueRoyaltyPart[] memory) {
-        bytes memory encoded = ICollection(collection).collectionProperty(ROYALTIES_PROPERTY);
-
-        return UniqueRoyalty.decode(encoded);
+        try ICollection(collection).collectionProperty(ROYALTIES_PROPERTY) returns (bytes memory encoded) {
+            return UniqueRoyalty.decode(encoded);
+        } catch {
+            return new UniqueRoyaltyPart[](0);
+        }
     }
 
     function getRoyalty(address collection, uint tokenId) public view returns (UniqueRoyaltyPart[] memory royalty) {
@@ -66,7 +70,6 @@ contract UniqueRoyaltyHelper {
         }
     }
 
-    // todo - check decimals conversions are ok; assume LibPart.Part has 2 decimal places (12345 == 1.2345%)
     function convertToLibParts(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
         LibPart.Part[] memory parts = new LibPart.Part[](royalties.length);
 
