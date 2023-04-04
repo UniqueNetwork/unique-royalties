@@ -15,7 +15,7 @@ export const toLibPart = (part: UniqueRoyaltyPart): LibPart => {
     ? Address.mirror.substrateToEthereum(part.address)
     : part.address;
 
-  const { value } = changeDecimals(part, 2);
+  const { value } = changeDecimals(part, 4);
 
   return { account, value };
 };

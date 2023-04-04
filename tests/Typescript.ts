@@ -53,23 +53,23 @@ describe('TS implementation', () => {
 
   describe('Calculate royalty', () => {
     it('should calculate royalty', () => {
-      expect(calculateAmount(1n, 0, 100n)).to.equal(1);
-      expect(calculateAmount(100n, 0, 100n)).to.equal(100);
-      expect(calculateAmount(50n, 0, 100n)).to.equal(50);
-      expect(calculateAmount(1n, 6, 1_000_000_000n)).to.equal(10);
+      expect(calculateAmount(1n, 0, 100n)).to.equal(100);
+      expect(calculateAmount(100n, 0, 100n)).to.equal(10000);
+      expect(calculateAmount(50n, 0, 100n)).to.equal(5000);
+      expect(calculateAmount(1n, 6, 1_000_000_000n)).to.equal(1000);
 
       expect(
         calculateRoyalty(SUB_PRIMARY.decoded, 1_000_000_000_000n),
       ).to.deep.equal({
         address: SUB_PRIMARY.decoded.address,
-        amount: 255_000_000n,
+        amount: 255_000_00000n,
       });
 
       expect(
         calculateRoyalty(ETH_SECONDARY.decoded, 1_000_000_000_000n),
       ).to.deep.equal({
         address: ETH_SECONDARY.decoded.address,
-        amount: 150_000n,
+        amount: 150_00000n,
       });
     });
   });

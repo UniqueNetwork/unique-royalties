@@ -76,7 +76,7 @@ contract UniqueRoyaltyHelper {
         for (uint i = 0; i < royalties.length; i++) {
             parts[i] = LibPart.Part({
                 account: payable(CrossAddressLib.toAddress(royalties[i].crossAddress)),
-                value: uint96(royalties[i].value * (10 ** (royalties[i].decimals - 2)))
+                value: uint96(royalties[i].value * (10 ** (royalties[i].decimals - 4)))
             });
         }
 
@@ -87,7 +87,7 @@ contract UniqueRoyaltyHelper {
         RoyaltyAmount[] memory royaltyAmounts = new RoyaltyAmount[](royalties.length);
 
         for (uint i = 0; i < royalties.length; i++) {
-            uint amount = (sellPrice * royalties[i].value) / (10 ** (2 + royalties[i].decimals));
+            uint amount = (sellPrice * royalties[i].value) / (10 ** (royalties[i].decimals));
 
             royaltyAmounts[i] = RoyaltyAmount({
                 crossAddress: royalties[i].crossAddress,

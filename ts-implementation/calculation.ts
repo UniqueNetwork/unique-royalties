@@ -4,7 +4,7 @@ export const calculateAmount = (
   value: bigint,
   decimals: number,
   sellPrice: bigint,
-): bigint => (sellPrice * value) / 10n ** (BigInt(decimals) + 2n);
+): bigint => (sellPrice * value) / 10n ** BigInt(decimals);
 
 export const calculateRoyalty = (
   royalty: UniqueRoyaltyPart,
