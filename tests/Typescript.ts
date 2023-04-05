@@ -1,5 +1,6 @@
 import {
   calculateAmount,
+  calculateRoyalties,
   calculateRoyalty,
   decodeRoyalty,
   decodeRoyaltyPart,
@@ -71,6 +72,28 @@ describe('TS implementation', () => {
         address: ETH_SECONDARY.decoded.address,
         amount: 150_00000n,
       });
+    });
+
+    it('should calculate royalty depending on sale type', () => {
+      const primary = calculateRoyalties(
+        ROYALTY_DECODED,
+        true,
+        1_000_000_000_000n,
+      );
+
+      expect(primary.length).to.equal(1);
+      expect(primary[0].address).to.equal(SUB_PRIMARY.decoded.address);
+      expect(primary[0].amount).to.equal(255_000_00000n);
+
+      const secondary = calculateRoyalties(
+        ROYALTY_DECODED,
+        false,
+        1_000_000_000_000n,
+      );
+
+      expect(secondary.length).to.equal(1);
+      expect(secondary[0].address).to.equal(ETH_SECONDARY.decoded.address);
+      expect(secondary[0].amount).to.equal(150_00000n);
     });
   });
 });

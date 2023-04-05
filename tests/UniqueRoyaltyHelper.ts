@@ -95,23 +95,18 @@ describe('UniqueRoyaltyHelper', () => {
       structFromRoyaltyPart(ETH_SECONDARY.decoded),
     ];
 
-    const [sub] = await uniqueRoyaltyHelper.calculateRoyalties(
-      asStruct.slice(0, 1),
-      sellPrice,
-    );
-
-    const [eth] = await uniqueRoyaltyHelper.calculateRoyalties(
-      asStruct.slice(1, 2),
-      sellPrice,
-    );
-
-    const both = await uniqueRoyaltyHelper.calculateRoyalties(
+    const [sub, ...restPrimary] = await uniqueRoyaltyHelper.calculateRoyalties(
       asStruct,
+      true,
       sellPrice,
     );
 
-    expect(both[0]).to.deep.equal(sub);
-    expect(both[1]).to.deep.equal(eth);
+    expect(restPrimary.length).to.equal(0);
+
+    const [eth, ...restSecondary] =
+      await uniqueRoyaltyHelper.calculateRoyalties(asStruct, false, sellPrice);
+
+    expect(restSecondary.length).to.equal(0);
 
     expect(sub.crossAddress.sub).to.equal(
       Address.substrate.decode(SUB_PRIMARY.decoded.address).bigint,

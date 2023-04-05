@@ -83,24 +83,38 @@ contract UniqueRoyaltyHelper {
         return parts;
     }
 
-    function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {
+    function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, bool isPrimarySale, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {
         RoyaltyAmount[] memory royaltyAmounts = new RoyaltyAmount[](royalties.length);
+        uint amountsCount = 0;
 
         for (uint i = 0; i < royalties.length; i++) {
-            uint amount = (sellPrice * royalties[i].value) / (10 ** (royalties[i].decimals));
+            if (isPrimarySale == (royalties[i].royaltyType == RoyaltyType.PRIMARY)) {
+                uint amount = (sellPrice * royalties[i].value) / (10 ** (royalties[i].decimals));
 
-            royaltyAmounts[i] = RoyaltyAmount({
-                crossAddress: royalties[i].crossAddress,
-                amount: amount
-            });
+                royaltyAmounts[amountsCount] = RoyaltyAmount({
+                    crossAddress: royalties[i].crossAddress,
+                    amount: amount
+                });
+
+                amountsCount += 1;
+            }
         }
 
+        // shrink royaltyAmounts to amountsCount length
+        assembly { mstore(royaltyAmounts, amountsCount) }
+
         return royaltyAmounts;
+    }
+
+    function calculateForPrimarySale(address collection, uint tokenId, uint sellPrice) public view returns (RoyaltyAmount[] memory) {
+        UniqueRoyaltyPart[] memory royalties = getRoyalty(collection, tokenId);
+
+        return calculateRoyalties(royalties, true, sellPrice);
     }
 
     function calculate(address collection, uint tokenId, uint sellPrice) public view returns (RoyaltyAmount[] memory) {
         UniqueRoyaltyPart[] memory royalties = getRoyalty(collection, tokenId);
 
-        return calculateRoyalties(royalties, sellPrice);
+        return calculateRoyalties(royalties, false, sellPrice);
     }
 }
