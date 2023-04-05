@@ -1,6 +1,6 @@
 export enum RoyaltyType {
-  PRIMARY = 'PRIMARY',
-  SECONDARY = 'SECONDARY',
+  DEFAULT = 'DEFAULT',
+  PRIMARY_ONLY = 'PRIMARY_ONLY',
 }
 
 export interface UniqueRoyaltyPart {

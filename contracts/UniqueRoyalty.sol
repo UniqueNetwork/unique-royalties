@@ -7,21 +7,11 @@ struct CrossAddress {
     uint256 sub;
 }
 
-enum RoyaltyType {
-    PRIMARY,        /* 0 */
-    SECONDARY       /* 1 */
-}
-
-enum AddressType {
-    ETH,            /* 0 */
-    SUB             /* 1 */
-}
-
 struct UniqueRoyaltyPart {
     uint8 version;
     uint8 decimals;
     uint64 value;
-    RoyaltyType royaltyType;
+    bool isPrimarySaleOnly;
     CrossAddress crossAddress;
 }
 
@@ -33,8 +23,8 @@ library CrossAddressLib {
 
 library UniqueRoyalty {
     uint private constant DECIMALS_OFFSET = 4 * 16;
-    uint private constant ADDRESS_TYPE_OFFSET = 4 * (16 + 2);
-    uint private constant ROYALTY_TYPE_OFFSET = 4 * (16 + 2 + 1);
+    uint private constant ADDRESS_TYPE_OFFSET = 4 * (16 + 2);           // 0 - eth, 1 - sub
+    uint private constant ROYALTY_TYPE_OFFSET = 4 * (16 + 2 + 1);       // 0 - default, 1 - primary sale only
     uint private constant VERSION_OFFSET = 4 * (16 + 2 + 1 + 1 + 42);
 
     uint private constant PART_LENGTH = 32 * 2;
@@ -93,20 +83,20 @@ library UniqueRoyalty {
         uint256 _address
     ) internal pure returns (UniqueRoyaltyPart memory) {
         uint256 version = _meta >> VERSION_OFFSET;
-        uint256 royaltyType = _meta & (1 << ROYALTY_TYPE_OFFSET);
-        uint256 addressType = _meta & (1 << ADDRESS_TYPE_OFFSET);
+        bool isPrimarySaleOnly = (_meta & (1 << ROYALTY_TYPE_OFFSET)) > 0;
+        bool isEthereumAddress = (_meta & (1 << ADDRESS_TYPE_OFFSET)) == 0;
         uint256 decimals = (_meta >> 4 * 16) & 0xFF;
         uint256 value = _meta & 0xFFFFFFFFFFFFFFFF;
 
-        CrossAddress memory crossAddress = addressType > 0
-            ? CrossAddress({ sub: _address, eth: address(0) })
-            : CrossAddress({ sub: 0, eth: address(uint160(_address)) });
+        CrossAddress memory crossAddress = isEthereumAddress
+            ? CrossAddress({ sub: 0, eth: address(uint160(_address)) })
+            : CrossAddress({ sub: _address, eth: address(0) });
 
         UniqueRoyaltyPart memory royaltyPart = UniqueRoyaltyPart({
             version: uint8(version),
             decimals: uint8(decimals),
             value: uint64(value),
-            royaltyType: royaltyType > 0 ? RoyaltyType.SECONDARY : RoyaltyType.PRIMARY,
+            isPrimarySaleOnly: isPrimarySaleOnly,
             crossAddress: crossAddress
         });
 
@@ -118,14 +108,17 @@ library UniqueRoyalty {
         uint256 encodedAddress = 0;
 
         encodedMeta |= uint256(royaltyPart.version) << VERSION_OFFSET;
-        encodedMeta |= uint256(royaltyPart.royaltyType == RoyaltyType.PRIMARY ? 0 : 1) << ROYALTY_TYPE_OFFSET;
-        encodedMeta |= uint256(royaltyPart.crossAddress.eth != address(0x0) ? 0 : 1) << ADDRESS_TYPE_OFFSET;
+        if (royaltyPart.isPrimarySaleOnly) encodedMeta |= 1 << ROYALTY_TYPE_OFFSET;
+
+        if (royaltyPart.crossAddress.eth == address(0x0)) {
+            encodedMeta |= 1 << ADDRESS_TYPE_OFFSET;
+            encodedAddress = royaltyPart.crossAddress.sub;
+        } else {
+            encodedAddress = uint256(uint160(royaltyPart.crossAddress.eth));
+        }
+
         encodedMeta |= uint256(royaltyPart.decimals) << DECIMALS_OFFSET;
         encodedMeta |= uint256(royaltyPart.value);
-
-        encodedAddress |= uint256(royaltyPart.crossAddress.eth == address(0x0)
-            ? royaltyPart.crossAddress.sub
-            : uint160(royaltyPart.crossAddress.eth));
 
         return (encodedMeta, encodedAddress);
     }

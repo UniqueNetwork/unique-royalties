@@ -20,5 +20,7 @@ export const calculateRoyalties = (
   sellPrice: bigint,
 ): RoyaltyAmount[] =>
   royalties
-    .filter((r) => isPrimarySale === (r.royaltyType === RoyaltyType.PRIMARY))
+    .filter(
+      (r) => isPrimarySale === (r.royaltyType === RoyaltyType.PRIMARY_ONLY),
+    )
     .map((r) => calculateRoyalty(r, sellPrice));

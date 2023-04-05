@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
+import { ETH_DEFAULT, ROYALTY_ENCODED, SUB_PRIMARY_ONLY } from './_samples';
 import { logGasDiff, structFromRoyaltyPart } from './_util';
 import { Ethereum } from '@unique-nft/utils/extension';
 import { ContractTransaction } from 'ethers';
@@ -27,7 +27,7 @@ describe('Gas prices', () => {
     const dummyTx = await contract.emitDummyPartEncoded();
 
     const realTx = await contract.encodePartAndEmit(
-      structFromRoyaltyPart(SUB_PRIMARY.decoded),
+      structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
     );
 
     await compare('encoding part', dummyTx, realTx);
@@ -38,7 +38,7 @@ describe('Gas prices', () => {
 
     const dummyTx = await contract.emitDummyPartDecoded();
 
-    const realTx = await contract.decodePartAndEmit(SUB_PRIMARY.encoded);
+    const realTx = await contract.decodePartAndEmit(SUB_PRIMARY_ONLY.encoded);
 
     await compare('decoding part', dummyTx, realTx);
   });
@@ -49,8 +49,8 @@ describe('Gas prices', () => {
     const dummyTx = await contract.emitDummyEncoded();
 
     const realTx = await contract.encodeAndEmit([
-      structFromRoyaltyPart(SUB_PRIMARY.decoded),
-      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+      structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
+      structFromRoyaltyPart(ETH_DEFAULT.decoded),
     ]);
 
     await compare('encoding', dummyTx, realTx);

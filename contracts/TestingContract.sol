@@ -39,7 +39,7 @@ contract TestingContract {
             version: 1,
             decimals: 4,
             value: 255,
-            royaltyType: RoyaltyType.PRIMARY,
+            isPrimarySaleOnly: true,
             crossAddress: CrossAddress({
                 eth: address(0),
                 sub: 20978269385216403909128489231801018566079057093140524795293939145867075317000
@@ -88,12 +88,12 @@ contract TestingContract {
 
         royalty[0] = UniqueRoyaltyPart({
             version: 1,
-            decimals: 6,
-            value: 15,
-            royaltyType: RoyaltyType.SECONDARY,
+            decimals: 4,
+            value: 255,
+            isPrimarySaleOnly: true,
             crossAddress: CrossAddress({
-                eth: address(0x1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C),
-                sub: 0
+                eth: address(0),
+                sub: 20978269385216403909128489231801018566079057093140524795293939145867075317000
             })
         });
 
@@ -101,7 +101,7 @@ contract TestingContract {
             version: 1,
             decimals: 6,
             value: 15,
-            royaltyType: RoyaltyType.SECONDARY,
+            isPrimarySaleOnly: false,
             crossAddress: CrossAddress({
                 eth: address(0x1234A38988Dd5ecC93Dd9cE90a44A00e5FB91e4C),
                 sub: 0

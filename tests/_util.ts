@@ -21,7 +21,7 @@ export const expectRoyaltyPartStruct = (
     expect(actual.value).to.equal(expected.value);
 
     expect(
-      actual.royaltyType ? RoyaltyType.SECONDARY : RoyaltyType.PRIMARY,
+      actual.isPrimarySaleOnly ? RoyaltyType.PRIMARY_ONLY : RoyaltyType.DEFAULT,
     ).to.equal(expected.royaltyType);
 
     if (Address.is.ethereumAddress(expected.address)) {
@@ -42,7 +42,7 @@ export const structFromRoyaltyPart = (
   value: part.value,
   version: part.version,
   decimals: part.decimals,
-  royaltyType: part.royaltyType === RoyaltyType.SECONDARY ? 1 : 0,
+  isPrimarySaleOnly: part.royaltyType === RoyaltyType.PRIMARY_ONLY,
   crossAddress: Address.is.ethereumAddress(part.address)
     ? {
         eth: part.address,

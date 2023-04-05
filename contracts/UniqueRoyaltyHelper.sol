@@ -88,7 +88,7 @@ contract UniqueRoyaltyHelper {
         uint amountsCount = 0;
 
         for (uint i = 0; i < royalties.length; i++) {
-            if (isPrimarySale == (royalties[i].royaltyType == RoyaltyType.PRIMARY)) {
+            if (isPrimarySale == royalties[i].isPrimarySaleOnly) {
                 uint amount = (sellPrice * royalties[i].value) / (10 ** (royalties[i].decimals));
 
                 royaltyAmounts[amountsCount] = RoyaltyAmount({

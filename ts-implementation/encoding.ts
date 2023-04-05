@@ -29,7 +29,7 @@ const encodeAddress = (address: string): [boolean, string] => {
  * where:
  * VV - version
  * 42 zeros
- * R - royalty type (0 - primary, 1 - secondary)
+ * R - royalty type (0 - default, 1 - primary-only)
  * A - address type (0 - ethereum, 1 - substrate)
  * DD - decimals
  * vvvvvvvvvvvvvvvvvv - value (uint64)
@@ -42,7 +42,7 @@ export const encodeRoyaltyPart = (
   validateRoyaltyPart(part);
 
   const version = part.version.toString(16).padStart(2, '0');
-  const royaltyType = part.royaltyType === RoyaltyType.PRIMARY ? '0' : '1';
+  const royaltyType = part.royaltyType === RoyaltyType.DEFAULT ? '0' : '1';
   const decimals = part.decimals.toString(16).padStart(2, '0');
 
   const value = part.value.toString(16).padStart(16, '0');

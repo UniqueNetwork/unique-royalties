@@ -11,7 +11,7 @@ export const decodeRoyaltyPart = (encoded: string): UniqueRoyaltyPart => {
   const decimals = parseInt(encodedMeta.slice(46, 46 + 2), 16);
   const value = BigInt('0x' + encodedMeta.slice(48));
   const royaltyType =
-    encodedMeta[44] === '0' ? RoyaltyType.PRIMARY : RoyaltyType.SECONDARY;
+    encodedMeta[44] === '0' ? RoyaltyType.DEFAULT : RoyaltyType.PRIMARY_ONLY;
 
   const isEthereum = encodedMeta[45] === '0';
   const address = isEthereum

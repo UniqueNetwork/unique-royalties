@@ -1,5 +1,5 @@
 import { expectRoyaltyPartStruct, structFromRoyaltyPart } from './_util';
-import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
+import { ETH_DEFAULT, ROYALTY_ENCODED, SUB_PRIMARY_ONLY } from './_samples';
 import { expect } from 'chai';
 import { libTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 
@@ -11,36 +11,36 @@ describe('Solidity implementation', () => {
       const { contract } = await deployed;
 
       const encoded = await contract.encodePart(
-        structFromRoyaltyPart(SUB_PRIMARY.decoded),
+        structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
       );
 
-      expect(encoded).to.equal(SUB_PRIMARY.encoded);
+      expect(encoded).to.equal(SUB_PRIMARY_ONLY.encoded);
     });
 
     it('encode - eth - secondary', async () => {
       const { contract } = await deployed;
 
       const encoded = await contract.encodePart(
-        structFromRoyaltyPart(ETH_SECONDARY.decoded),
+        structFromRoyaltyPart(ETH_DEFAULT.decoded),
       );
 
-      expect(encoded).to.equal(ETH_SECONDARY.encoded);
+      expect(encoded).to.equal(ETH_DEFAULT.encoded);
     });
 
     it('decode - sub - primary', async () => {
       const { contract } = await deployed;
 
-      const decoded = await contract.decodePart(SUB_PRIMARY.encoded);
+      const decoded = await contract.decodePart(SUB_PRIMARY_ONLY.encoded);
 
-      expectRoyaltyPartStruct(decoded).toEqual(SUB_PRIMARY.decoded);
+      expectRoyaltyPartStruct(decoded).toEqual(SUB_PRIMARY_ONLY.decoded);
     });
 
     it('decode - eth - secondary', async () => {
       const { contract } = await deployed;
 
-      const decoded = await contract.decodePart(ETH_SECONDARY.encoded);
+      const decoded = await contract.decodePart(ETH_DEFAULT.encoded);
 
-      expectRoyaltyPartStruct(decoded).toEqual(ETH_SECONDARY.decoded);
+      expectRoyaltyPartStruct(decoded).toEqual(ETH_DEFAULT.decoded);
     });
   });
 
@@ -49,8 +49,8 @@ describe('Solidity implementation', () => {
       const { contract } = await deployed;
 
       const asStructsArray = [
-        structFromRoyaltyPart(SUB_PRIMARY.decoded),
-        structFromRoyaltyPart(ETH_SECONDARY.decoded),
+        structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
+        structFromRoyaltyPart(ETH_DEFAULT.decoded),
       ];
 
       const encoded = await contract.encode(asStructsArray);
@@ -63,8 +63,8 @@ describe('Solidity implementation', () => {
 
       const [first, second] = await contract.decode(ROYALTY_ENCODED);
 
-      expectRoyaltyPartStruct(first).toEqual(SUB_PRIMARY.decoded);
-      expectRoyaltyPartStruct(second).toEqual(ETH_SECONDARY.decoded);
+      expectRoyaltyPartStruct(first).toEqual(SUB_PRIMARY_ONLY.decoded);
+      expectRoyaltyPartStruct(second).toEqual(ETH_DEFAULT.decoded);
     });
   });
 });

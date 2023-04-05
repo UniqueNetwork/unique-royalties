@@ -1,4 +1,4 @@
-import { ETH_SECONDARY, ROYALTY_ENCODED, SUB_PRIMARY } from './_samples';
+import { ETH_DEFAULT, ROYALTY_ENCODED, SUB_PRIMARY_ONLY } from './_samples';
 import { expect } from 'chai';
 import { helperTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 import { structFromRoyaltyPart } from './_util';
@@ -56,7 +56,7 @@ describe('UniqueRoyaltyHelper', () => {
     ).wait();
 
     const setTokenPropsTx = await collection.setProperties(1, [
-      { key: ROYALTIES_PROPERTY, value: SUB_PRIMARY.encoded },
+      { key: ROYALTIES_PROPERTY, value: SUB_PRIMARY_ONLY.encoded },
     ]);
 
     allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
@@ -71,15 +71,15 @@ describe('UniqueRoyaltyHelper', () => {
 
     const ok = await Promise.all([
       uniqueRoyaltyHelper.validate(ROYALTY_ENCODED),
-      uniqueRoyaltyHelper.validatePart(SUB_PRIMARY.encoded),
-      uniqueRoyaltyHelper.validatePart(ETH_SECONDARY.encoded),
+      uniqueRoyaltyHelper.validatePart(SUB_PRIMARY_ONLY.encoded),
+      uniqueRoyaltyHelper.validatePart(ETH_DEFAULT.encoded),
     ]);
 
     expect(ok.every((i) => i)).to.equal(true);
 
     const notOk = await Promise.all([
       uniqueRoyaltyHelper.validatePart(ROYALTY_ENCODED),
-      uniqueRoyaltyHelper.validate(ETH_SECONDARY.encoded.substring(0, 10)),
+      uniqueRoyaltyHelper.validate(ETH_DEFAULT.encoded.substring(0, 10)),
     ]);
 
     expect(notOk.every((i) => !i)).to.equal(true);
@@ -91,8 +91,8 @@ describe('UniqueRoyaltyHelper', () => {
     const sellPrice = 1_000_000_000_000n;
 
     const asStruct = [
-      structFromRoyaltyPart(SUB_PRIMARY.decoded),
-      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+      structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
+      structFromRoyaltyPart(ETH_DEFAULT.decoded),
     ];
 
     const [sub, ...restPrimary] = await uniqueRoyaltyHelper.calculateRoyalties(
@@ -109,19 +109,19 @@ describe('UniqueRoyaltyHelper', () => {
     expect(restSecondary.length).to.equal(0);
 
     expect(sub.crossAddress.sub).to.equal(
-      Address.substrate.decode(SUB_PRIMARY.decoded.address).bigint,
+      Address.substrate.decode(SUB_PRIMARY_ONLY.decoded.address).bigint,
     );
 
     expect(eth.crossAddress.eth.toLowerCase()).to.equal(
-      ETH_SECONDARY.decoded.address,
+      ETH_DEFAULT.decoded.address,
     );
 
     expect(sub.amount.toBigInt()).to.equal(
-      calculateRoyalty(SUB_PRIMARY.decoded, sellPrice).amount,
+      calculateRoyalty(SUB_PRIMARY_ONLY.decoded, sellPrice).amount,
     );
 
     expect(eth.amount.toBigInt()).to.equal(
-      calculateRoyalty(ETH_SECONDARY.decoded, sellPrice).amount,
+      calculateRoyalty(ETH_DEFAULT.decoded, sellPrice).amount,
     );
   });
 
@@ -129,15 +129,15 @@ describe('UniqueRoyaltyHelper', () => {
     const { uniqueRoyaltyHelper } = await deploy;
 
     const asStruct = [
-      structFromRoyaltyPart(SUB_PRIMARY.decoded),
-      structFromRoyaltyPart(ETH_SECONDARY.decoded),
+      structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
+      structFromRoyaltyPart(ETH_DEFAULT.decoded),
     ];
 
     const [subLibPart, ethLibPart] =
       await uniqueRoyaltyHelper.convertToLibParts(asStruct);
 
-    const expectedSubLibPart = toLibPart(SUB_PRIMARY.decoded);
-    const expectedEthLibPart = toLibPart(ETH_SECONDARY.decoded);
+    const expectedSubLibPart = toLibPart(SUB_PRIMARY_ONLY.decoded);
+    const expectedEthLibPart = toLibPart(ETH_DEFAULT.decoded);
 
     expect(subLibPart.value.toBigInt()).to.equal(expectedSubLibPart.value);
     expect(subLibPart.account).to.equal(expectedSubLibPart.account);
