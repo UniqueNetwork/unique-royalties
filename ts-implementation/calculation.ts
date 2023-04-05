@@ -1,4 +1,4 @@
-import { RoyaltyAmount, UniqueRoyaltyPart } from './types';
+import { RoyaltyAmount, RoyaltyType, UniqueRoyaltyPart } from './types';
 
 export const calculateAmount = (
   value: bigint,
@@ -16,5 +16,9 @@ export const calculateRoyalty = (
 
 export const calculateRoyalties = (
   royalties: UniqueRoyaltyPart[],
+  isPrimarySale: boolean,
   sellPrice: bigint,
-): RoyaltyAmount[] => royalties.map((r) => calculateRoyalty(r, sellPrice));
+): RoyaltyAmount[] =>
+  royalties
+    .filter((r) => isPrimarySale === (r.royaltyType === RoyaltyType.PRIMARY))
+    .map((r) => calculateRoyalty(r, sellPrice));
