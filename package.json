@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "compile": "hardhat compile",
+    "check:balances": "hardhat run ./scripts/check-balances.ts",
+    "deploy:everywhere": "hardhat run ./scripts/deploy-everywhere.ts",
     "test:uniqsu": "hardhat test --network uniqsu",
     "test:opal": "hardhat test --network opal",
     "test": "hardhat test",

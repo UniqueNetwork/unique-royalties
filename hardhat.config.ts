@@ -4,9 +4,9 @@ import '@nomicfoundation/hardhat-toolbox';
 import 'hardhat-gas-reporter';
 import { config as dotenvConfig } from 'dotenv';
 
-const { PRIVATE_KEY, PRIVATE_KEY_2 } = dotenvConfig().parsed;
+const { PRIVATE_KEY } = dotenvConfig().parsed;
 
-const accounts = [PRIVATE_KEY, PRIVATE_KEY_2];
+const accounts = [PRIVATE_KEY];
 
 export const uniqsu: HttpNetworkUserConfig = {
   url: 'https://rpc-o.unq.uniq.su',
@@ -17,6 +17,18 @@ export const uniqsu: HttpNetworkUserConfig = {
 export const opal: HttpNetworkUserConfig = {
   url: 'https://rpc-opal.unique.network',
   chainId: 8882,
+  accounts,
+};
+
+export const quartz: HttpNetworkUserConfig = {
+  url: 'https://rpc-quartz.unique.network',
+  chainId: 8881,
+  accounts,
+};
+
+export const unique: HttpNetworkUserConfig = {
+  url: 'https://rpc.unique.network',
+  chainId: 8880,
   accounts,
 };
 
@@ -39,8 +51,10 @@ const config: HardhatUserConfig = {
     gasPrice: 1017,
   },
   networks: {
-    opal,
     uniqsu,
+    opal,
+    quartz,
+    unique,
     hardhat: {
       accounts: accounts.map((privateKey) => ({
         privateKey,

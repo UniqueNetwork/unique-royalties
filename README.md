@@ -21,11 +21,16 @@ yarn test
 
 ### To deploy
 
-TBD
+```shell
+yarn
 
+echo "PRIVATE_KEY=<your_private_key>" > .env
+
+yarn check:balances
+
+yarn deploy:everywhere
+```
 ### ToDo
 
-- deal with deployment to all unique chains
-- add [ERC-2981](https://eips.ethereum.org/EIPS/eip-2981) adapter or smth
 - add to [@unique-nft/schemas](https://www.npmjs.com/package/@unique-nft/schemas)
 - add to [@unique-nft/solidity-interfaces](https://www.npmjs.com/package/@unique-nft/solidity-interfaces)
