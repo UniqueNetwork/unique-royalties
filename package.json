@@ -5,8 +5,17 @@
   "license": "MIT",
   "scripts": {
     "compile": "hardhat compile",
+
     "check:balances": "hardhat run ./scripts/check-balances.ts",
     "deploy:everywhere": "hardhat run ./scripts/deploy-everywhere.ts",
+
+    "deploy": "hardhat run ./scripts/deploy.ts",
+    "deploy:uniqsu": "hardhat run ./scripts/deploy.ts --network uniqsu",
+    "deploy:opalRc":"hardhat run ./scripts/deploy.ts --network opalRc",
+    "deploy:opal": "hardhat run ./scripts/deploy.ts --network opal",
+    "deploy:quartz":"hardhat run ./scripts/deploy.ts --network quartz",
+    "deploy:unique": "hardhat run ./scripts/deploy.ts --network unique",
+
     "test:uniqsu": "hardhat test --network uniqsu",
     "test:opal": "hardhat test --network opal",
     "test": "hardhat test",
