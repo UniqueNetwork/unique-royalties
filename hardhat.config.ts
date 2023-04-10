@@ -14,6 +14,11 @@ export const uniqsu: HttpNetworkUserConfig = {
   accounts,
 };
 
+export const opalRc: HttpNetworkUserConfig = {
+  url: 'wss://ws-rc.unique.network',
+  accounts,
+};
+
 export const opal: HttpNetworkUserConfig = {
   url: 'https://rpc-opal.unique.network',
   chainId: 8882,
@@ -53,6 +58,7 @@ const config: HardhatUserConfig = {
   networks: {
     uniqsu,
     opal,
+    opalRc,
     quartz,
     unique,
     hardhat: {

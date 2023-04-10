@@ -1,4 +1,4 @@
-import { opal, quartz, uniqsu, unique } from '../hardhat.config';
+import { opalRc, opal, quartz, uniqsu, unique } from '../hardhat.config';
 
 export type BalanceData = {
   name: string;
@@ -9,6 +9,7 @@ export type BalanceData = {
 
 export const networks = {
   uniqsu,
+  opalRc,
   opal,
   quartz,
   unique,
