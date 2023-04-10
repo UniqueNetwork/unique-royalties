@@ -24,9 +24,6 @@ async function getNetworksData(): Promise<NetworksData> {
     const balance = (await provider.getBalance(signer.address)).toBigInt();
     const gasPrice = (await provider.getGasPrice()).toBigInt();
     const nonce = await provider.getTransactionCount(signer.address);
-    const decimals = await provider
-      .getNetwork()
-      .then((network) => (network.chainId === 1 ? 18 : 6));
 
     networksData[name as keyof typeof networks] = {
       name,
