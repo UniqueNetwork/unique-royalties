@@ -70,19 +70,6 @@ contract UniqueRoyaltyHelper {
         }
     }
 
-    function convertToLibParts(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
-        LibPart.Part[] memory parts = new LibPart.Part[](royalties.length);
-
-        for (uint i = 0; i < royalties.length; i++) {
-            parts[i] = LibPart.Part({
-                account: payable(CrossAddressLib.toAddress(royalties[i].crossAddress)),
-                value: uint96(royalties[i].value * (10 ** (royalties[i].decimals - 4)))
-            });
-        }
-
-        return parts;
-    }
-
     function calculateRoyalties(UniqueRoyaltyPart[] memory royalties, bool isPrimarySale, uint sellPrice) public pure returns (RoyaltyAmount[] memory) {
         RoyaltyAmount[] memory royaltyAmounts = new RoyaltyAmount[](royalties.length);
         uint amountsCount = 0;
