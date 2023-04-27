@@ -18,9 +18,7 @@ library LibPart {
 }
 
 library LibPartAdapter {
-    uint private constant PART_LENGTH = 32 * 2;
-
-    function encodeRoyalties(LibPart.Part[] memory parts) internal pure returns (bytes memory) {
+    function encode(LibPart.Part[] memory parts) internal pure returns (bytes memory) {
         if (parts.length == 0) return "";
 
         uint256[] memory encoded = new uint256[](parts.length * 2);
@@ -36,8 +34,8 @@ library LibPartAdapter {
     function decode(bytes memory b) internal pure returns (LibPart.Part[] memory) {
         if (b.length == 0) return new LibPart.Part[](0);
 
-        require((b.length % PART_LENGTH) == 0, "Invalid bytes length, expected (32 * 2) * UniqueRoyaltyParts count");
-        uint partsCount = b.length / PART_LENGTH;
+        require((b.length % (32 * 2)) == 0, "Invalid bytes length, expected (32 * 2) * UniqueRoyaltyParts count");
+        uint partsCount = b.length / (32 * 2);
         uint numbersCount = partsCount * 2;
 
         LibPart.Part[] memory parts = new LibPart.Part[](partsCount);
@@ -64,7 +62,9 @@ library LibPartAdapter {
 
         return parts;
     }
+}
 
+library LibPartAdapterComplex {
     function decodeSafe(bytes memory data) internal pure returns (LibPart.Part[] memory) {
         return fromUniqueRoyalties(UniqueRoyalty.decode(data));
     }
@@ -73,7 +73,7 @@ library LibPartAdapter {
         return UniqueRoyalty.encode(toUniqueRoyalties(parts));
     }
 
-    function fromUniqueRoyalties(UniqueRoyaltyPart[] memory royalties) public pure returns (LibPart.Part[] memory) {
+    function fromUniqueRoyalties(UniqueRoyaltyPart[] memory royalties) internal pure returns (LibPart.Part[] memory) {
         LibPart.Part[] memory parts = new LibPart.Part[](royalties.length);
 
         for (uint i = 0; i < royalties.length; i++) {
@@ -90,7 +90,7 @@ library LibPartAdapter {
         return parts;
     }
 
-    function toUniqueRoyalties(LibPart.Part[] memory parts) public pure returns (UniqueRoyaltyPart[] memory) {
+    function toUniqueRoyalties(LibPart.Part[] memory parts) internal pure returns (UniqueRoyaltyPart[] memory) {
         UniqueRoyaltyPart[] memory royalties = new UniqueRoyaltyPart[](parts.length);
 
         for (uint i = 0; i < parts.length; i++) {

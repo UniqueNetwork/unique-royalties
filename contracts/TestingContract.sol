@@ -3,6 +3,7 @@
 pragma solidity >=0.8.19;
 
 import "./UniqueRoyalty.sol";
+import "./LibPart.sol";
 
 contract TestingContract {
     bytes constant SUB_PRIMARY_BYTES = hex"01000000000000000000000000000000000000000000010400000000000000ff2e61479a581f023808aaa5f2ec90be6c2b250102d99d788bde3c8d4153a0ed08";
@@ -125,5 +126,13 @@ contract TestingContract {
 
     function emitDummyEncoded() public {
         emit Encoded(ROYALTY_BYTES);
+    }
+
+    function encodeLibPart(LibPart.Part[] memory parts) public pure returns (bytes memory) {
+        return LibPartAdapter.encode(parts);
+    }
+
+    function decodeLibPart(bytes memory b) public pure returns (LibPart.Part[] memory parts) {
+        return LibPartAdapter.decode(b);
     }
 }
