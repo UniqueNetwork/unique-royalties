@@ -6,6 +6,8 @@ import {
   decodeRoyaltyPart,
   encodeRoyalty,
   encodeRoyaltyPart,
+  toLibPart,
+  fromLibPart,
 } from '../ts-implementation';
 import {
   ETH_DEFAULT,
@@ -58,6 +60,8 @@ describe('TS implementation', () => {
       expect(calculateAmount(100n, 0, 100n)).to.equal(10000);
       expect(calculateAmount(50n, 0, 100n)).to.equal(5000);
       expect(calculateAmount(1n, 6, 1_000_000_000n)).to.equal(1000);
+      expect(calculateAmount(1n, 2, 100n)).to.equal(1n);
+      expect(calculateAmount(15n, 4, 100n)).to.equal(0n);
 
       expect(
         calculateRoyalty(SUB_PRIMARY_ONLY.decoded, 1_000_000_000_000n),
@@ -94,6 +98,33 @@ describe('TS implementation', () => {
       expect(secondary.length).to.equal(1);
       expect(secondary[0].address).to.equal(ETH_DEFAULT.decoded.address);
       expect(secondary[0].amount).to.equal(150_00000n);
+    });
+  });
+
+  describe('LibPart adapter', () => {
+    it('to LibPart', () => {
+      const sample = ETH_DEFAULT.decoded;
+      const expected = { account: ETH_DEFAULT.decoded.address };
+
+      const getValueFor = (decimals: number, value: bigint) =>
+        toLibPart({ ...ETH_DEFAULT.decoded, decimals, value }).value;
+
+      expect(getValueFor(0, 1n)).to.equal(10000n);
+      expect(getValueFor(2, 1n)).to.equal(100n);
+      expect(getValueFor(4, 1n)).to.equal(1n);
+      expect(getValueFor(6, 100n)).to.equal(1n);
+      expect(getValueFor(6, 1n)).to.equal(0n);
+      expect(getValueFor(7, 1000n)).to.equal(1n);
+    });
+
+    it('from LibPart', () => {
+      expect(
+        fromLibPart({ account: ETH_DEFAULT.decoded.address, value: 1n }),
+      ).to.deep.equal({
+        ...ETH_DEFAULT.decoded,
+        decimals: 4,
+        value: 1n,
+      });
     });
   });
 });

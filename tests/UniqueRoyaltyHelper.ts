@@ -124,27 +124,4 @@ describe('UniqueRoyaltyHelper', () => {
       calculateRoyalty(ETH_DEFAULT.decoded, sellPrice).amount,
     );
   });
-
-  it('Transformation to Lib.Part', async () => {
-    const { uniqueRoyaltyHelper } = await deploy;
-
-    const asStruct = [
-      structFromRoyaltyPart(SUB_PRIMARY_ONLY.decoded),
-      structFromRoyaltyPart(ETH_DEFAULT.decoded),
-    ];
-
-    const [subLibPart, ethLibPart] =
-      await uniqueRoyaltyHelper.convertToLibParts(asStruct);
-
-    const expectedSubLibPart = toLibPart(SUB_PRIMARY_ONLY.decoded);
-    const expectedEthLibPart = toLibPart(ETH_DEFAULT.decoded);
-
-    expect(subLibPart.value.toBigInt()).to.equal(expectedSubLibPart.value);
-    expect(subLibPart.account).to.equal(expectedSubLibPart.account);
-
-    expect(ethLibPart.value.toBigInt()).to.equal(expectedEthLibPart.value);
-    expect(ethLibPart.account.toLowerCase()).to.equal(
-      expectedEthLibPart.account,
-    );
-  });
 });
