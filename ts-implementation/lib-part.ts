@@ -5,7 +5,10 @@ const changeDecimals = (
   part: UniqueRoyaltyPart,
   decimals: number,
 ): UniqueRoyaltyPart => {
-  const value = part.value * 10n ** BigInt(part.decimals - decimals);
+  const value =
+    decimals >= part.decimals
+      ? part.value * 10n ** BigInt(decimals - part.decimals)
+      : part.value / 10n ** BigInt(part.decimals - decimals);
 
   return { ...part, value, decimals };
 };
@@ -19,3 +22,17 @@ export const toLibPart = (part: UniqueRoyaltyPart): LibPart => {
 
   return { account, value };
 };
+
+export const toLibParts = (parts: UniqueRoyaltyPart[]) => parts.map(toLibPart);
+
+export const fromLibPart = (part: LibPart): UniqueRoyaltyPart => {
+  return {
+    version: 1,
+    decimals: 4,
+    value: part.value,
+    royaltyType: 'DEFAULT',
+    address: part.account,
+  };
+};
+
+export const fromLibParts = (parts: LibPart[]) => parts.map(fromLibPart);
