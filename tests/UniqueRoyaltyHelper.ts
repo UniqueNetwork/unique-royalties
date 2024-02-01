@@ -2,27 +2,27 @@ import { ETH_DEFAULT, ROYALTY_ENCODED, SUB_PRIMARY_ONLY } from './_samples';
 import { expect } from 'chai';
 import { helperTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 import { structFromRoyaltyPart } from './_util';
-import {
-  calculateRoyalty,
-  toLibPart,
-  ROYALTIES_PROPERTY,
-} from '../ts-implementation';
+import { calculateRoyalty, ROYALTIES_PROPERTY } from '../src';
 import { Address } from '@unique-nft/utils/address';
+import { UniqueRoyaltyHelper } from '../typechain-types';
 
 describe('UniqueRoyaltyHelper', () => {
   const deploy = loadFixtureOrDeploy(helperTestingFixture);
 
-  const getAllRoyalties = async (collection, uniqueRoyaltyHelper) => {
+  const getAllRoyalties = async (
+    collectionAddress: string,
+    uniqueRoyaltyHelper: UniqueRoyaltyHelper,
+  ) => {
     const collectionRoyalty = await uniqueRoyaltyHelper.getCollectionRoyalty(
-      collection.address,
+      collectionAddress,
     );
 
     const tokenRoyalty = await uniqueRoyaltyHelper.getTokenRoyalty(
-      collection.address,
+      collectionAddress,
       1,
     );
 
-    const royalty = await uniqueRoyaltyHelper.getRoyalty(collection.address, 1);
+    const royalty = await uniqueRoyaltyHelper.getRoyalty(collectionAddress, 1);
 
     return { collectionRoyalty, tokenRoyalty, royalty };
   };
@@ -31,8 +31,12 @@ describe('UniqueRoyaltyHelper', () => {
     this.timeout(120_000);
 
     const { collection, uniqueRoyaltyHelper } = await deploy;
+    const collectionAddress = await collection.getAddress();
 
-    let allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
+    let allRoyalties = await getAllRoyalties(
+      collectionAddress,
+      uniqueRoyaltyHelper,
+    );
     expect(allRoyalties.collectionRoyalty.length).to.equal(0);
     expect(allRoyalties.tokenRoyalty.length).to.equal(0);
     expect(allRoyalties.royalty.length).to.equal(0);
@@ -43,7 +47,10 @@ describe('UniqueRoyaltyHelper', () => {
       ])
     ).wait();
 
-    allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
+    allRoyalties = await getAllRoyalties(
+      collectionAddress,
+      uniqueRoyaltyHelper,
+    );
 
     expect(allRoyalties.collectionRoyalty.length).to.equal(2);
     expect(allRoyalties.royalty).to.deep.equal(allRoyalties.collectionRoyalty);
@@ -59,7 +66,10 @@ describe('UniqueRoyaltyHelper', () => {
       { key: ROYALTIES_PROPERTY, value: SUB_PRIMARY_ONLY.encoded },
     ]);
 
-    allRoyalties = await getAllRoyalties(collection, uniqueRoyaltyHelper);
+    allRoyalties = await getAllRoyalties(
+      collectionAddress,
+      uniqueRoyaltyHelper,
+    );
 
     expect(allRoyalties.collectionRoyalty.length).to.equal(2);
     expect(allRoyalties.tokenRoyalty.length).to.equal(1);
@@ -116,11 +126,11 @@ describe('UniqueRoyaltyHelper', () => {
       ETH_DEFAULT.decoded.address,
     );
 
-    expect(sub.amount.toBigInt()).to.equal(
+    expect(sub.amount).to.equal(
       calculateRoyalty(SUB_PRIMARY_ONLY.decoded, sellPrice).amount,
     );
 
-    expect(eth.amount.toBigInt()).to.equal(
+    expect(eth.amount).to.equal(
       calculateRoyalty(ETH_DEFAULT.decoded, sellPrice).amount,
     );
   });

@@ -9,7 +9,7 @@ and [@unique-nft/solidity-interfaces](https://github.com/UniqueNetwork/solidity-
 - [UniqueRoyalty.sol](./contracts/UniqueRoyalty.sol) - core decoding/encoding logic library
 - [UniqueRoyaltyHelper.sol](./contracts/UniqueRoyaltyHelper.sol) - helper contract to decode/encode royalty data, transform, calculate royalty amount etc
 
-### Typescript implementation of the library located - [here](./ts-implementation)
+### Typescript implementation of the library located - [here](./src)
 
 ### To check everything is working
 

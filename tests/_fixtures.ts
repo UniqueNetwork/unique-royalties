@@ -6,7 +6,9 @@ import {
   CollectionHelpersFactory,
   UniqueNFTFactory,
   constants,
+  UniqueNFT,
 } from '@unique-nft/solidity-interfaces';
+import { Contract } from 'ethers';
 
 export async function loadFixtureOrDeploy<T>(
   fixture: () => Promise<T>,
@@ -40,6 +42,7 @@ export async function helperTestingFixture() {
   if (collectionHelpersCode && collectionHelpersCode !== '0x') {
     const [signer] = await ethers.getSigners();
 
+    // @ts-ignore - remove after ethers update
     const collectionHelpers = await CollectionHelpersFactory(signer, ethers);
 
     const collectionTx = await collectionHelpers.createNFTCollection(
@@ -53,11 +56,12 @@ export async function helperTestingFixture() {
       CollectionCreated: { collectionId: string };
     }>(await collectionTx.wait());
 
-    const collection = await UniqueNFTFactory(
+    const collection = (await UniqueNFTFactory(
       parsed.events.CollectionCreated.collectionId,
+      // @ts-ignore - remove after ethers update
       signer,
       ethers,
-    );
+    )) as UniqueNFT & Contract;
 
     await (await collection.mint(signer.address)).wait();
 
