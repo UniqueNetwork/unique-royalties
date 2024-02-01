@@ -2,7 +2,7 @@ import {
   UniqueRoyaltyPartStruct,
   UniqueRoyaltyPartStructOutput,
 } from '../typechain-types/TestingContract';
-import { RoyaltyType, UniqueRoyaltyPart } from '../ts-implementation';
+import { RoyaltyType, UniqueRoyaltyPart } from '../src';
 import { expect } from 'chai';
 import { Address } from '@unique-nft/utils/address';
 
@@ -56,12 +56,12 @@ export const structFromRoyaltyPart = (
 
 export const logGasDiff = (
   name: string,
-  { dummyReceipt, realReceipt }: { dummyReceipt: any; realReceipt: any },
+  gasUsed: { dummy: bigint; real: bigint },
 ) => {
   console.dir({
     name,
-    dummy: dummyReceipt.gasUsed,
-    real: realReceipt.gasUsed,
-    diff: realReceipt.gasUsed - dummyReceipt.gasUsed,
+    dummy: gasUsed.dummy,
+    real: gasUsed.real,
+    diff: gasUsed.real - gasUsed.dummy,
   });
 };

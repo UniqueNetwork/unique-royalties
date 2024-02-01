@@ -2,20 +2,28 @@ import { expect } from 'chai';
 import { ETH_DEFAULT, ROYALTY_ENCODED, SUB_PRIMARY_ONLY } from './_samples';
 import { logGasDiff, structFromRoyaltyPart } from './_util';
 import { Ethereum } from '@unique-nft/utils/extension';
-import { ContractTransaction } from 'ethers';
+import { ContractTransaction, ContractTransactionResponse } from 'ethers';
 import { libTestingFixture, loadFixtureOrDeploy } from './_fixtures';
 
 const compare = async (
   name: string,
-  dummyTx: ContractTransaction,
-  realTx: ContractTransaction,
+  dummyTx: ContractTransactionResponse,
+  realTx: ContractTransactionResponse,
 ) => {
-  const dummyReceipt = Ethereum.parseEthersTxReceipt(await dummyTx.wait());
-  const realReceipt = Ethereum.parseEthersTxReceipt(await realTx.wait());
+  // const dummyReceipt = Ethereum.parseEthersTxReceipt(await dummyTx.wait());
+  // const realReceipt = Ethereum.parseEthersTxReceipt(await realTx.wait());
 
-  logGasDiff(name, { dummyReceipt, realReceipt });
+  const dummyReceipt = await dummyTx.wait();
+  const realReceipt = await realTx.wait();
 
-  expect(realReceipt.gasUsed).to.gt(dummyReceipt.gasUsed);
+  const gasUsed = {
+    dummy: dummyReceipt.gasUsed,
+    real: realReceipt.gasUsed,
+  };
+
+  logGasDiff(name, gasUsed);
+
+  expect(gasUsed.real).to.gt(gasUsed.dummy);
 };
 
 describe('Gas prices', () => {

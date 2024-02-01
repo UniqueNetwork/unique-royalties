@@ -8,7 +8,7 @@ import {
   encodeRoyaltyPart,
   toLibPart,
   fromLibPart,
-} from '../ts-implementation';
+} from '../src';
 import {
   ETH_DEFAULT,
   SUB_PRIMARY_ONLY,

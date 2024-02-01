@@ -4,11 +4,11 @@ import { expect } from 'chai';
 import { ETH_DEFAULT, SUB_PRIMARY_ONLY } from './_samples';
 import { loadFixtureOrDeploy, libTestingFixture } from './_fixtures';
 
-import { decodeRoyalty, fromLibParts } from '../ts-implementation';
+import { decodeRoyalty, fromLibParts } from '../src';
 
 const structToLibPart = (struct: any) => ({
   account: struct.account,
-  value: struct.value.toBigInt(),
+  value: struct.value,
 });
 
 describe('LibPartAdapter', () => {
